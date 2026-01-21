@@ -6,7 +6,7 @@ import os
 import time
 
 from .database import engine, Base
-from .routes import auth, accounts, contacts, leads, opportunities, cases, dashboard, activities, logs, service
+from .routes import auth, accounts, contacts, leads, opportunities, cases, dashboard, activities, logs, service, platform_events, sap_integration
 from .logger import log_action
 
 
@@ -93,6 +93,8 @@ app.include_router(dashboard.router)
 app.include_router(activities.router)
 app.include_router(logs.router)
 app.include_router(service.router)
+app.include_router(platform_events.router)
+app.include_router(sap_integration.router)
 
 
 @app.get("/")

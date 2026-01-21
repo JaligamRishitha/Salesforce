@@ -220,3 +220,99 @@ async def check_and_escalate_overdue(
         "escalated_count": len(escalated),
         "escalated_cases": [c.case_number for c in escalated]
     }
+
+
+@router.get("/{case_id}/platform-event-format")
+async def get_case_platform_event_format(
+    case_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Get case data in platform event format for SAP integration"""
+    from datetime import datetime
+    import uuid
+    
+    case = crud.get_case(db, case_id)
+    if not case:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Case not found"
+        )
+    
+    # Get related data
+    account = case.account if case.account else None
+    contact = case.contact if case.contact else None
+    owner = case.owner if case.owner else None
+    
+    # Map priority to event type
+    event_type_mapping = {
+        "Critical": "CUSTOMER_CRITICAL_CASE",
+        "High": "CUSTOMER_HIGH_PRIORITY_CASE", 
+        "Medium": "CUSTOMER_BILLING_ADJUSTMENT",
+        "Low": "CUSTOMER_SERVICE_REQUEST"
+    }
+    
+    # Map case type to business context
+    case_type_mapping = {
+        "Billing": "Billing Dispute",
+        "Technical": "Technical Issue",
+        "Service": "Service Request",
+        "Complaint": "Customer Complaint"
+    }
+    
+    # Generate platform event payload
+    platform_event = {
+        "eventMetadata": {
+            "eventId": f"uuid-{uuid.uuid4()}",
+            "eventType": event_type_mapping.get(case.priority, "CUSTOMER_SERVICE_REQUEST"),
+            "eventSource": "Salesforce",
+            "eventTimestamp": datetime.utcnow().isoformat() + "Z",
+            "correlationId": f"corr-ukpn-{case.case_number}",
+            "severity": case.priority.upper(),
+            "version": "1.0"
+        },
+        "customer": {
+            "customerId": f"00{account.id:013d}" if account else f"00{case_id:013d}",
+            "billingAccountId": f"ISU-{account.id:08d}" if account else f"ISU-{case_id:08d}",
+            "customerType": "Business" if account and "Ltd" in account.name else "Residential",
+            "name": {
+                "firstName": contact.first_name if contact else "Unknown",
+                "lastName": contact.last_name if contact else "Customer"
+            },
+            "contact": {
+                "email": contact.email if contact else "unknown@email.com",
+                "phone": contact.phone if contact else "+44-0000-000000"
+            },
+            "vulnerabilityFlag": False
+        },
+        "crmContext": {
+            "caseId": f"500{case.id:010d}",
+            "caseType": case_type_mapping.get(case.subject.split()[0] if case.subject else "Service", "Service Request"),
+            "caseSubType": case.subject[:50] if case.subject else "General Inquiry",
+            "priority": f"P{1 if case.priority == 'Critical' else 2 if case.priority == 'High' else 3 if case.priority == 'Medium' else 4}",
+            "slaTargetHours": 24 if case.priority == "Critical" else 48 if case.priority == "High" else 72,
+            "caseStatus": case.status,
+            "ownerTeam": "Customer Services" if case.priority in ["Critical", "High"] else "General Support"
+        },
+        "businessContext": {
+            "affectedService": "Electricity Supply" if "power" in case.subject.lower() or "outage" in case.subject.lower() else "Customer Service",
+            "invoiceNumber": f"INV-2024-{case.id:04d}",
+            "disputedAmount": 124.75 if "billing" in case.subject.lower() else 0.0,
+            "currency": "GBP",
+            "region": "East London" if account and "London" in account.name else "General",
+            "regulatoryImpact": case.priority in ["Critical", "High"]
+        },
+        "integrationContext": {
+            "targetSystem": "SAP_ISU",
+            "operation": "CREATE_CASE_SYNC",
+            "retryCount": 0,
+            "maxRetries": 3
+        },
+        "status": {
+            "currentState": "IN_PROGRESS" if case.status in ["New", "Working"] else "COMPLETED" if case.status == "Closed" else "ESCALATED",
+            "createdAt": case.created_at.isoformat() + "Z",
+            "lastUpdatedAt": case.updated_at.isoformat() + "Z" if case.updated_at else case.created_at.isoformat() + "Z"
+        }
+    }
+    
+    return platform_event

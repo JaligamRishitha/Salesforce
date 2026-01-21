@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Text, Float, Enum, Boolean
+from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Text, Float, Enum, Boolean, JSON
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from .database import Base
@@ -40,6 +40,45 @@ class OpportunityStage(str, enum.Enum):
     negotiation = "Negotiation"
     closed_won = "Closed Won"
     closed_lost = "Closed Lost"
+
+
+# Platform Event Enums
+class EventType(str, enum.Enum):
+    """Valid CRM Event Types"""
+    CUSTOMER_CREATED = "CUSTOMER_CREATED"
+    CUSTOMER_UPDATED = "CUSTOMER_UPDATED"
+    CUSTOMER_BILLING_ADJUSTMENT = "CUSTOMER_BILLING_ADJUSTMENT"
+    CASE_CREATED = "CASE_CREATED"
+    CASE_UPDATED = "CASE_UPDATED"
+    CASE_ESCALATED = "CASE_ESCALATED"
+    CASE_CLOSED = "CASE_CLOSED"
+    CONTACT_CREATED = "CONTACT_CREATED"
+    CONTACT_UPDATED = "CONTACT_UPDATED"
+    BILLING_DISPUTE = "BILLING_DISPUTE"
+    BILLING_PAYMENT_RECEIVED = "BILLING_PAYMENT_RECEIVED"
+    COMPLAINT_FILED = "COMPLAINT_FILED"
+    COMPLAINT_RESOLVED = "COMPLAINT_RESOLVED"
+    SLA_BREACH = "SLA_BREACH"
+    SLA_WARNING = "SLA_WARNING"
+    SLA_RESTORED = "SLA_RESTORED"
+
+
+class EventSeverity(str, enum.Enum):
+    """Event Severity Levels"""
+    LOW = "LOW"
+    MEDIUM = "MEDIUM"
+    HIGH = "HIGH"
+    CRITICAL = "CRITICAL"
+
+
+class EventStatus(str, enum.Enum):
+    """Event Processing Status"""
+    RECEIVED = "RECEIVED"
+    VALIDATED = "VALIDATED"
+    PROCESSING = "PROCESSING"
+    PROCESSED = "PROCESSED"
+    FAILED = "FAILED"
+    REJECTED = "REJECTED"
 
 
 class User(Base):
@@ -342,3 +381,351 @@ class WarrantyExtension(Base):
     # Relationships
     service_account = relationship("ServiceAccount")
     owner = relationship("User")
+
+
+# Platform Event Models
+class CRMEventMetadata(Base):
+    """
+    Core event metadata table - stores essential event information
+    Maps to eventMetadata in canonical model
+    """
+    __tablename__ = "crm_event_metadata"
+
+    # Primary key - Salesforce Event UUID
+    event_id = Column(String(255), primary_key=True, index=True)
+    
+    # Core event fields
+    event_type = Column(String(100), nullable=False, index=True)
+    event_source = Column(String(50), nullable=False, default="Salesforce")
+    event_timestamp = Column(DateTime(timezone=True), nullable=False)
+    correlation_id = Column(String(255), index=True)
+    severity = Column(String(20), nullable=False)
+    
+    # Processing metadata
+    received_at = Column(DateTime(timezone=True), server_default=func.now())
+    processed_at = Column(DateTime(timezone=True))
+    processing_duration_ms = Column(Integer)
+    
+    # Integration tracking
+    target_system = Column(String(100))
+    operation = Column(String(100))
+    integration_status = Column(String(50), default="PENDING")
+    
+    # Raw payload for audit
+    raw_payload = Column(JSON)
+    
+    # Validation and error tracking
+    validation_errors = Column(JSON)
+    processing_errors = Column(JSON)
+    
+    # Audit fields
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+
+    # Relationships
+    customer = relationship("CRMCustomer", back_populates="event_metadata", uselist=False)
+    case_context = relationship("CRMCaseContext", back_populates="event_metadata", uselist=False)
+    business_context = relationship("CRMBusinessContext", back_populates="event_metadata", uselist=False)
+    event_status = relationship("CRMEventStatus", back_populates="event_metadata", uselist=False)
+
+
+class CRMCustomer(Base):
+    """
+    Customer information extracted from platform events
+    Maps to customer in canonical model
+    """
+    __tablename__ = "crm_customer"
+
+    id = Column(Integer, primary_key=True, index=True)
+    event_id = Column(String(255), ForeignKey("crm_event_metadata.event_id"), nullable=False, index=True)
+    
+    # Salesforce Customer IDs
+    customer_id = Column(String(100), index=True)  # Salesforce Customer ID
+    account_id = Column(String(100), index=True)   # Salesforce Account ID
+    billing_account = Column(String(100), index=True)  # External billing system ID
+    
+    # Customer details
+    customer_name = Column(String(255))
+    customer_email = Column(String(255))
+    customer_phone = Column(String(50))
+    customer_type = Column(String(50))  # Individual, Business, etc.
+    
+    # Address information
+    billing_address = Column(Text)
+    service_address = Column(Text)
+    
+    # Customer status
+    customer_status = Column(String(50))
+    account_status = Column(String(50))
+    
+    # Audit fields
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+
+    # Relationships
+    event_metadata = relationship("CRMEventMetadata", back_populates="customer")
+
+
+class CRMCaseContext(Base):
+    """
+    Case-related context from platform events
+    Maps to crmContext in canonical model
+    """
+    __tablename__ = "crm_case_context"
+
+    id = Column(Integer, primary_key=True, index=True)
+    event_id = Column(String(255), ForeignKey("crm_event_metadata.event_id"), nullable=False, index=True)
+    
+    # Case identification
+    case_id = Column(String(100), index=True)
+    case_number = Column(String(100), index=True)
+    
+    # Case details
+    case_type = Column(String(100))
+    case_status = Column(String(50))
+    case_priority = Column(String(20))
+    case_subject = Column(String(500))
+    case_description = Column(Text)
+    
+    # Case ownership and assignment
+    case_owner_id = Column(String(100))
+    case_owner_name = Column(String(255))
+    assigned_team = Column(String(100))
+    
+    # SLA information
+    sla_target_hours = Column(Integer)
+    sla_due_date = Column(DateTime(timezone=True))
+    sla_breach_risk = Column(Boolean, default=False)
+    
+    # Case resolution
+    resolution_code = Column(String(100))
+    resolution_description = Column(Text)
+    resolved_at = Column(DateTime(timezone=True))
+    
+    # Escalation tracking
+    is_escalated = Column(Boolean, default=False)
+    escalation_level = Column(Integer, default=0)
+    escalated_at = Column(DateTime(timezone=True))
+    escalation_reason = Column(Text)
+    
+    # Audit fields
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+
+    # Relationships
+    event_metadata = relationship("CRMEventMetadata", back_populates="case_context")
+
+
+class CRMBusinessContext(Base):
+    """
+    Business context and additional metadata
+    Maps to businessContext in canonical model
+    """
+    __tablename__ = "crm_business_context"
+
+    id = Column(Integer, primary_key=True, index=True)
+    event_id = Column(String(255), ForeignKey("crm_event_metadata.event_id"), nullable=False, index=True)
+    
+    # Business identifiers
+    business_unit = Column(String(100))
+    region = Column(String(100))
+    territory = Column(String(100))
+    
+    # Product/Service context
+    product_line = Column(String(100))
+    service_type = Column(String(100))
+    contract_number = Column(String(100))
+    
+    # Financial context
+    billing_amount = Column(Float)
+    currency_code = Column(String(10))
+    payment_terms = Column(String(100))
+    
+    # Compliance and regulatory
+    regulatory_requirements = Column(JSON)
+    compliance_flags = Column(JSON)
+    
+    # Additional metadata
+    custom_fields = Column(JSON)
+    tags = Column(JSON)
+    
+    # Audit fields
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+
+    # Relationships
+    event_metadata = relationship("CRMEventMetadata", back_populates="business_context")
+
+
+class CRMEventStatus(Base):
+    """
+    Event processing status and lifecycle tracking
+    Maps to status in canonical model
+    """
+    __tablename__ = "crm_event_status"
+
+    id = Column(Integer, primary_key=True, index=True)
+    event_id = Column(String(255), ForeignKey("crm_event_metadata.event_id"), nullable=False, index=True)
+    
+    # Processing status
+    current_status = Column(String(50), nullable=False, default="RECEIVED")
+    previous_status = Column(String(50))
+    status_changed_at = Column(DateTime(timezone=True), server_default=func.now())
+    
+    # Processing metrics
+    validation_passed = Column(Boolean, default=False)
+    normalization_completed = Column(Boolean, default=False)
+    persistence_completed = Column(Boolean, default=False)
+    
+    # Error tracking
+    error_count = Column(Integer, default=0)
+    last_error_message = Column(Text)
+    last_error_at = Column(DateTime(timezone=True))
+    
+    # Retry logic
+    retry_count = Column(Integer, default=0)
+    max_retries = Column(Integer, default=3)
+    next_retry_at = Column(DateTime(timezone=True))
+    
+    # Downstream system status
+    downstream_systems = Column(JSON)  # Track status per target system
+    
+    # Completion tracking
+    completed_at = Column(DateTime(timezone=True))
+    completion_duration_ms = Column(Integer)
+    
+    # Audit fields
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+
+    # Relationships
+    event_metadata = relationship("CRMEventMetadata", back_populates="event_status")
+
+
+class CRMEventProcessingLog(Base):
+    """
+    Detailed processing log for audit and debugging
+    """
+    __tablename__ = "crm_event_processing_log"
+
+    id = Column(Integer, primary_key=True, index=True)
+    event_id = Column(String(255), ForeignKey("crm_event_metadata.event_id"), nullable=False, index=True)
+    
+    # Log entry details
+    log_level = Column(String(20), nullable=False)  # DEBUG, INFO, WARN, ERROR
+    log_message = Column(Text, nullable=False)
+    log_context = Column(JSON)  # Additional context data
+    
+    # Processing step
+    processing_step = Column(String(100))  # validation, normalization, persistence, etc.
+    step_duration_ms = Column(Integer)
+    
+    # Error details (if applicable)
+    error_code = Column(String(50))
+    error_details = Column(JSON)
+    stack_trace = Column(Text)
+    
+    # Timestamp
+    logged_at = Column(DateTime(timezone=True), server_default=func.now())
+
+
+class SAPCaseMapping(Base):
+    """
+    Mapping table to store SAP case IDs for CRM cases
+    Tracks integration status between CRM and SAP systems
+    """
+    __tablename__ = "sap_case_mapping"
+
+    id = Column(Integer, primary_key=True, index=True)
+    
+    # CRM case reference
+    crm_case_id = Column(Integer, ForeignKey("cases.id"), nullable=False, index=True)
+    crm_case_number = Column(String(100), nullable=False, index=True)
+    
+    # SAP case reference
+    sap_case_id = Column(String(100), nullable=False, index=True)
+    sap_case_number = Column(String(100), index=True)
+    
+    # Integration metadata
+    integration_status = Column(String(50), nullable=False, default="PENDING")  # PENDING, SYNCED, FAILED, DELETED
+    last_sync_operation = Column(String(20))  # CREATE, UPDATE, DELETE
+    last_sync_at = Column(DateTime(timezone=True))
+    last_sync_success = Column(Boolean, default=False)
+    
+    # MuleSoft correlation
+    correlation_id = Column(String(255), index=True)
+    mulesoft_transaction_id = Column(String(255))
+    
+    # Error tracking
+    sync_error_count = Column(Integer, default=0)
+    last_error_message = Column(Text)
+    last_error_at = Column(DateTime(timezone=True))
+    
+    # Retry logic
+    retry_count = Column(Integer, default=0)
+    max_retries = Column(Integer, default=3)
+    next_retry_at = Column(DateTime(timezone=True))
+    
+    # Data consistency
+    crm_last_modified = Column(DateTime(timezone=True))
+    sap_last_modified = Column(DateTime(timezone=True))
+    data_hash = Column(String(64))  # Hash of case data for change detection
+    
+    # Audit fields
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+    created_by = Column(String(100))
+    
+    # Relationships
+    case = relationship("Case", backref="sap_mapping")
+
+
+class SAPIntegrationLog(Base):
+    """
+    Detailed log of SAP integration activities
+    Provides audit trail for all SAP synchronization operations
+    """
+    __tablename__ = "sap_integration_log"
+
+    id = Column(Integer, primary_key=True, index=True)
+    
+    # Reference to case mapping
+    case_mapping_id = Column(Integer, ForeignKey("sap_case_mapping.id"), nullable=False, index=True)
+    
+    # Integration operation details
+    operation_type = Column(String(20), nullable=False)  # CREATE, UPDATE, DELETE, QUERY
+    operation_status = Column(String(20), nullable=False)  # SUCCESS, FAILED, PENDING
+    
+    # Request/Response data
+    request_payload = Column(JSON)
+    response_payload = Column(JSON)
+    
+    # MuleSoft details
+    mulesoft_endpoint = Column(String(255))
+    mulesoft_method = Column(String(10))  # GET, POST, PUT, DELETE
+    mulesoft_status_code = Column(Integer)
+    mulesoft_response_time_ms = Column(Integer)
+    
+    # Error details
+    error_code = Column(String(50))
+    error_message = Column(Text)
+    error_details = Column(JSON)
+    
+    # Correlation and tracing
+    correlation_id = Column(String(255), index=True)
+    trace_id = Column(String(255))
+    
+    # Timing
+    started_at = Column(DateTime(timezone=True), nullable=False)
+    completed_at = Column(DateTime(timezone=True))
+    duration_ms = Column(Integer)
+    
+    # User context
+    initiated_by = Column(String(100))
+    user_agent = Column(String(255))
+    
+    # Audit fields
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    # Relationships
+    case_mapping = relationship("SAPCaseMapping", backref="integration_logs")
