@@ -47,6 +47,8 @@ export const accountsAPI = {
   update: (id, data) => api.put(`/api/accounts/${id}`, data),
   delete: (id) => api.delete(`/api/accounts/${id}`),
   changeOwner: (id, ownerId) => api.put(`/api/accounts/${id}/change-owner?owner_id=${ownerId}`),
+  listRequests: (params) => api.get('/api/accounts/requests', { params }),
+  mulesoftAccept: (requestId) => api.post(`/api/accounts/requests/${requestId}/mulesoft-accept`),
 };
 
 // Contacts

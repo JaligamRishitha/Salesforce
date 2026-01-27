@@ -120,6 +120,12 @@ class AccountResponse(AccountBase):
     created_at: datetime
     updated_at: Optional[datetime]
     owner_alias: Optional[str] = None
+    # Request/audit details (latest related request, if any)
+    request_id: Optional[int] = None
+    request_status: Optional[str] = None
+    servicenow_ticket_id: Optional[str] = None
+    integration_status: Optional[str] = None
+    correlation_id: Optional[str] = None
 
     class Config:
         from_attributes = True
@@ -162,6 +168,15 @@ class AccountCreateResult(BaseModel):
     flow: str
     account: Optional[AccountResponse] = None
     request: Optional[AccountRequestResponse] = None
+
+
+class MuleSoftAccountCallback(BaseModel):
+    """
+    Callback payload MuleSoft can send back to Salesforce.
+    """
+    accepted: bool = True
+    status: Optional[str] = None
+    message: Optional[str] = None
 
 
 # Contact Schemas

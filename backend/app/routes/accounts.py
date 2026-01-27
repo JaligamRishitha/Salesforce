@@ -1,19 +1,20 @@
-from fastapi import APIRouter, Depends, HTTPException, status, Query, Response
+from fastapi import APIRouter, Depends, HTTPException, status, Query, Response, Header
 from sqlalchemy.orm import Session
 from typing import Optional
 import math
+import os
 
 from ..database import get_db
 from ..auth import get_current_user
 from .. import schemas, crud
-from ..db_models import User, AccountRequestStatus
+from ..db_models import User, AccountRequestStatus, AccountCreationRequest
 from ..logger import log_action
 from ..integrations import account_approval_integration
 
 router = APIRouter(prefix="/api/accounts", tags=["accounts"])
 
 
-def account_to_response(account) -> schemas.AccountResponse:
+def account_to_response(account, request: Optional[AccountCreationRequest] = None) -> schemas.AccountResponse:
     return schemas.AccountResponse(
         id=account.id,
         name=account.name,
@@ -25,7 +26,12 @@ def account_to_response(account) -> schemas.AccountResponse:
         owner_id=account.owner_id,
         created_at=account.created_at,
         updated_at=account.updated_at,
-        owner_alias=account.owner.alias if account.owner else None
+        owner_alias=account.owner.alias if account.owner else None,
+        request_id=request.id if request else None,
+        request_status=request.status if request else None,
+        servicenow_ticket_id=request.servicenow_ticket_id if request else None,
+        integration_status=request.integration_status if request else None,
+        correlation_id=request.correlation_id if request else None,
     )
 
 
@@ -53,6 +59,34 @@ def is_manager(user: User) -> bool:
     return user.role in {"admin", "manager"}
 
 
+def verify_mulesoft_secret(secret: Optional[str]) -> None:
+    expected = os.getenv("MULESOFT_SHARED_SECRET", "")
+    if not expected:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="MuleSoft secret not configured")
+    if secret != expected:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Invalid MuleSoft secret")
+
+
+def latest_requests_by_account_id(
+    db: Session,
+    account_ids: list[int],
+) -> dict[int, AccountCreationRequest]:
+    if not account_ids:
+        return {}
+    requests = (
+        db.query(AccountCreationRequest)
+        .filter(AccountCreationRequest.created_account_id.in_(account_ids))
+        .order_by(AccountCreationRequest.created_at.desc())
+        .all()
+    )
+    latest: dict[int, AccountCreationRequest] = {}
+    for req in requests:
+        acct_id = req.created_account_id
+        if acct_id and acct_id not in latest:
+            latest[acct_id] = req
+    return latest
+
+
 @router.get("", response_model=schemas.PaginatedResponse)
 async def list_accounts(
     q: Optional[str] = None,
@@ -75,8 +109,10 @@ async def list_accounts(
         sort_order=sort_order
     )
 
+    request_map = latest_requests_by_account_id(db, [a.id for a in accounts])
+
     return schemas.PaginatedResponse(
-        items=[account_to_response(a) for a in accounts],
+        items=[account_to_response(a, request_map.get(a.id)) for a in accounts],
         total=total,
         page=page,
         page_size=page_size,
@@ -95,36 +131,32 @@ async def create_account(
     if not account.owner_id:
         account.owner_id = current_user.id
 
-    # Manager/admin flow: create immediately + audit
-    if is_manager(current_user):
-        db_account = crud.create_account(db, account)
+    # Always create a request first (ServiceNow-style audit trail for everyone)
+    request = crud.create_account_request(db, account, requested_by=current_user)
+    request = account_approval_integration.record_user_submission(db, request, current_user)
 
-        audit_request = crud.create_account_request(
+    # Manager/admin flow: auto-approved but still pending MuleSoft acceptance
+    if is_manager(current_user):
+        request.auto_approved = True
+        db.commit()
+        db.refresh(request)
+
+        request = crud.update_account_request_integration(
             db,
-            account,
-            requested_by=current_user,
-            status=AccountRequestStatus.COMPLETED.value,
-            auto_approved=True,
+            request,
+            servicenow_status="PENDING_MULESOFT",
+            integration_status="PENDING_MULESOFT",
         )
-        audit_request = crud.complete_account_request_with_account(db, audit_request, db_account, current_user)
-        audit_request = account_approval_integration.record_manager_audit(db, audit_request)
 
         log_action(
-            action_type="ACCOUNT_CREATED_MANAGER",
+            action_type="ACCOUNT_REQUEST_SENT_TO_MULESOFT",
             user=current_user.username,
-            details=f"Account '{db_account.name}' created and auto-audited",
-            status="success",
+            details=f"Account request '{account.name}' sent to MuleSoft (request {request.id})",
+            status="pending",
         )
 
-        return schemas.AccountCreateResult(
-            flow="manager_auto_create",
-            account=account_to_response(crud.get_account(db, db_account.id)),
-            request=account_request_to_response(audit_request),
-        )
-
-    # User flow: create approval request only
-    request = crud.create_account_request(db, account, requested_by=current_user)
-    request = account_approval_integration.record_user_submission(db, request)
+        response.status_code = status.HTTP_202_ACCEPTED
+        return schemas.AccountCreateResult(flow="manager_pending_mulesoft", request=account_request_to_response(request))
 
     log_action(
         action_type="ACCOUNT_CREATE_REQUESTED",
@@ -216,6 +248,126 @@ async def approve_account_request(
     )
 
 
+@router.post("/requests/{request_id}/mulesoft-accept", response_model=schemas.AccountCreateResult)
+async def mulesoft_accept_account_request(
+    request_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """
+    Simulates MuleSoft accepting the request and calling back into Salesforce.
+    In real integration, MuleSoft would invoke this after downstream approval.
+    """
+    if not is_manager(current_user):
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Manager access required")
+
+    request = crud.get_account_request(db, request_id)
+    if not request:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Account request not found")
+    if request.status != AccountRequestStatus.PENDING.value:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Request is not pending")
+
+    try:
+        payload = request.requested_payload or {}
+        account_data = schemas.AccountCreate(**payload)
+        if not account_data.owner_id:
+            account_data.owner_id = request.requested_by_id
+
+        db_account = crud.create_account(db, account_data)
+        request = crud.complete_account_request_with_account(db, request, db_account, current_user)
+        request = crud.update_account_request_integration(
+            db,
+            request,
+            servicenow_status="COMPLETED",
+            integration_status="COMPLETED",
+        )
+    except Exception:
+        request = crud.fail_account_request(db, request, "MuleSoft acceptance failed")
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Account creation failed")
+
+    log_action(
+        action_type="ACCOUNT_REQUEST_ACCEPTED_BY_MULESOFT",
+        user=current_user.username,
+        details=f"MuleSoft accepted request {request.id} -> account {request.created_account_id}",
+        status="success",
+    )
+
+    return schemas.AccountCreateResult(
+        flow="mulesoft_accepted_and_created",
+        account=account_to_response(crud.get_account(db, db_account.id)),
+        request=account_request_to_response(request),
+    )
+
+
+@router.post("/requests/{request_id}/mulesoft-callback", response_model=schemas.AccountCreateResult)
+async def mulesoft_callback_account_request(
+    request_id: int,
+    payload: schemas.MuleSoftAccountCallback,
+    x_mulesoft_secret: Optional[str] = Header(None, alias="X-MuleSoft-Secret"),
+    db: Session = Depends(get_db),
+):
+    """
+    Endpoint intended for MuleSoft to call after orchestration/approval.
+    Secured via shared secret header.
+    """
+    verify_mulesoft_secret(x_mulesoft_secret)
+
+    request = crud.get_account_request(db, request_id)
+    if not request:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Account request not found")
+    if request.status != AccountRequestStatus.PENDING.value:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Request is not pending")
+
+    if not payload.accepted:
+        request = crud.reject_account_request(db, request, request.requested_by, reason=payload.message or payload.status)
+        request = crud.update_account_request_integration(
+            db,
+            request,
+            integration_status="REJECTED_BY_MULESOFT",
+            servicenow_status=payload.status or "REJECTED",
+            error_message=payload.message,
+        )
+        log_action(
+            action_type="ACCOUNT_REQUEST_REJECTED_BY_MULESOFT",
+            user="mulesoft",
+            details=f"Request {request.id} rejected by MuleSoft",
+            status="error",
+        )
+        return schemas.AccountCreateResult(flow="mulesoft_rejected", request=account_request_to_response(request))
+
+    try:
+        payload_data = request.requested_payload or {}
+        account_data = schemas.AccountCreate(**payload_data)
+        if not account_data.owner_id:
+            account_data.owner_id = request.requested_by_id
+
+        db_account = crud.create_account(db, account_data)
+        request = crud.complete_account_request_with_account(db, request, db_account, request.requested_by)
+        request = crud.update_account_request_integration(
+            db,
+            request,
+            servicenow_status=payload.status or "COMPLETED",
+            integration_status="COMPLETED",
+            error_message=payload.message,
+        )
+    except Exception:
+        request = crud.fail_account_request(db, request, "MuleSoft callback failed")
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Account creation failed")
+
+    log_action(
+        action_type="ACCOUNT_REQUEST_ACCEPTED_BY_MULESOFT",
+        user="mulesoft",
+        details=f"MuleSoft callback accepted request {request.id} -> account {request.created_account_id}",
+        status="success",
+    )
+
+    return schemas.AccountCreateResult(
+        flow="mulesoft_callback_created",
+        account=account_to_response(crud.get_account(db, db_account.id)),
+        request=account_request_to_response(request),
+    )
+
+
 @router.post("/requests/{request_id}/reject", response_model=schemas.AccountRequestResponse)
 async def reject_account_request(
     request_id: int,
@@ -261,7 +413,8 @@ async def get_account(
     # Track recent record
     crud.add_recent_record(db, current_user.id, "account", account.id, account.name)
 
-    return account_to_response(account)
+    request_map = latest_requests_by_account_id(db, [account.id])
+    return account_to_response(account, request_map.get(account.id))
 
 
 @router.put("/{account_id}", response_model=schemas.AccountResponse)
