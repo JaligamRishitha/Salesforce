@@ -91,6 +91,136 @@ def create_account(db: Session, account: schemas.AccountCreate) -> models.Accoun
     return db_account
 
 
+def create_account_request(
+    db: Session,
+    account: schemas.AccountCreate,
+    requested_by: models.User,
+    status: str = models.AccountRequestStatus.PENDING.value,
+    auto_approved: bool = False,
+) -> models.AccountCreationRequest:
+    payload = account.model_dump()
+    correlation_id = str(uuid.uuid4())
+    request = models.AccountCreationRequest(
+        name=payload.get("name"),
+        requested_payload=payload,
+        status=status,
+        auto_approved=auto_approved,
+        correlation_id=correlation_id,
+        requested_by_id=requested_by.id,
+        integration_status="PENDING",
+    )
+    db.add(request)
+    db.commit()
+    db.refresh(request)
+    return request
+
+
+def get_account_request(db: Session, request_id: int) -> Optional[models.AccountCreationRequest]:
+    return (
+        db.query(models.AccountCreationRequest)
+        .options(
+            joinedload(models.AccountCreationRequest.requested_by),
+            joinedload(models.AccountCreationRequest.approved_by),
+            joinedload(models.AccountCreationRequest.created_account),
+        )
+        .filter(models.AccountCreationRequest.id == request_id)
+        .first()
+    )
+
+
+def list_account_requests(
+    db: Session,
+    status: Optional[str] = None,
+    requested_by_id: Optional[int] = None,
+    skip: int = 0,
+    limit: int = 50,
+) -> Tuple[List[models.AccountCreationRequest], int]:
+    query = db.query(models.AccountCreationRequest).options(
+        joinedload(models.AccountCreationRequest.requested_by),
+        joinedload(models.AccountCreationRequest.approved_by),
+        joinedload(models.AccountCreationRequest.created_account),
+    )
+
+    if status:
+        query = query.filter(models.AccountCreationRequest.status == status)
+    if requested_by_id:
+        query = query.filter(models.AccountCreationRequest.requested_by_id == requested_by_id)
+
+    total = query.count()
+    items = query.order_by(desc(models.AccountCreationRequest.created_at)).offset(skip).limit(limit).all()
+    return items, total
+
+
+def update_account_request_integration(
+    db: Session,
+    request: models.AccountCreationRequest,
+    *,
+    servicenow_ticket_id: Optional[str] = None,
+    servicenow_status: Optional[str] = None,
+    mulesoft_transaction_id: Optional[str] = None,
+    integration_status: Optional[str] = None,
+    error_message: Optional[str] = None,
+) -> models.AccountCreationRequest:
+    if servicenow_ticket_id is not None:
+        request.servicenow_ticket_id = servicenow_ticket_id
+    if servicenow_status is not None:
+        request.servicenow_status = servicenow_status
+    if mulesoft_transaction_id is not None:
+        request.mulesoft_transaction_id = mulesoft_transaction_id
+    if integration_status is not None:
+        request.integration_status = integration_status
+    if error_message is not None:
+        request.error_message = error_message
+
+    db.commit()
+    db.refresh(request)
+    return request
+
+
+def complete_account_request_with_account(
+    db: Session,
+    request: models.AccountCreationRequest,
+    account: models.Account,
+    approver: models.User,
+) -> models.AccountCreationRequest:
+    request.status = models.AccountRequestStatus.COMPLETED.value
+    request.approved_by_id = approver.id
+    request.created_account_id = account.id
+    request.integration_status = "COMPLETED"
+    db.commit()
+    db.refresh(request)
+    return request
+
+
+def fail_account_request(
+    db: Session,
+    request: models.AccountCreationRequest,
+    error_message: str,
+) -> models.AccountCreationRequest:
+    request.status = models.AccountRequestStatus.FAILED.value
+    request.integration_status = "FAILED"
+    request.error_message = error_message
+    db.commit()
+    db.refresh(request)
+    return request
+
+
+def reject_account_request(
+    db: Session,
+    request: models.AccountCreationRequest,
+    approver: models.User,
+    reason: Optional[str] = None,
+) -> models.AccountCreationRequest:
+    request.status = models.AccountRequestStatus.REJECTED.value
+    request.approved_by_id = approver.id
+    request.integration_status = "REJECTED"
+    if reason:
+        request.error_message = reason
+    db.commit()
+    db.refresh(request)
+    return request
+
+
 def update_account(db: Session, account_id: int, account: schemas.AccountUpdate) -> Optional[models.Account]:
     db_account = db.query(models.Account).filter(models.Account.id == account_id).first()
     if db_account:

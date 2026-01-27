@@ -7,7 +7,7 @@ services:
       dockerfile: Dockerfile
     container_name: salesforce-backend
     ports:
-      - "8000:8000"
+      - "18000:8000"
     volumes:
       - ./backend/data:/app/data
     environment:

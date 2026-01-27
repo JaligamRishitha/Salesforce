@@ -251,8 +251,14 @@ export default function RecordFormModal({ isOpen, onClose, objectType, onSave, i
     setLoading(true);
     setSaveAndNew(createAnother);
     try {
-      await onSave(formData);
-      toast.success(`${config.title.replace('New ', '')} created successfully`);
+      const result = await onSave(formData);
+      const statusCode = result?.status;
+
+      if (objectType === 'account' && statusCode === 202) {
+        toast.success('Account request submitted for approval');
+      } else {
+        toast.success(`${config.title.replace('New ', '')} created successfully`);
+      }
 
       if (createAnother) {
         // Reset form for new entry

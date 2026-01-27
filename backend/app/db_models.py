@@ -7,6 +7,7 @@ import enum
 
 class UserRole(str, enum.Enum):
     admin = "admin"
+    manager = "manager"
     user = "user"
 
 
@@ -134,6 +135,55 @@ class Account(Base):
     contacts = relationship("Contact", back_populates="account")
     opportunities = relationship("Opportunity", back_populates="account")
     cases = relationship("Case", back_populates="account")
+
+
+class AccountRequestStatus(str, enum.Enum):
+    PENDING = "PENDING"
+    COMPLETED = "COMPLETED"
+    REJECTED = "REJECTED"
+    FAILED = "FAILED"
+
+
+class AccountCreationRequest(Base):
+    """
+    Tracks account creation requests for approval/audit workflows.
+    - Managers/admins auto-complete but still record an audit request.
+    - Regular users create a PENDING request that must be approved.
+    """
+    __tablename__ = "account_creation_requests"
+
+    id = Column(Integer, primary_key=True, index=True)
+
+    # Snapshot of requested data
+    name = Column(String(255), nullable=False, index=True)
+    requested_payload = Column(JSON, nullable=False)
+
+    # Request metadata
+    status = Column(String(20), nullable=False, default=AccountRequestStatus.PENDING.value, index=True)
+    auto_approved = Column(Boolean, default=False)
+    correlation_id = Column(String(255), index=True)
+
+    # User context
+    requested_by_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    approved_by_id = Column(Integer, ForeignKey("users.id"))
+
+    # Downstream integration/audit details (MuleSoft/ServiceNow placeholders)
+    servicenow_ticket_id = Column(String(255), index=True)
+    servicenow_status = Column(String(50))
+    mulesoft_transaction_id = Column(String(255), index=True)
+    integration_status = Column(String(50))
+    error_message = Column(Text)
+
+    # Created resource linkage
+    created_account_id = Column(Integer, ForeignKey("accounts.id"))
+
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+
+    # Relationships
+    requested_by = relationship("User", foreign_keys=[requested_by_id])
+    approved_by = relationship("User", foreign_keys=[approved_by_id])
+    created_account = relationship("Account")
 
 
 class Contact(Base):
