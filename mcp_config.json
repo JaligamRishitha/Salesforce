@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "salesforce-crm": {
+      "command": "python",
+      "args": ["/home/pradeep1a/Network-apps/Salesforce/mcp_server.py"],
+      "env": {
+        "PYTHONUNBUFFERED": "1"
+      }
+    }
+  }
+}

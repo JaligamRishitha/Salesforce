@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Query, Response, Header
 from sqlalchemy.orm import Session
 from typing import Optional
+from pydantic import BaseModel
 import math
 import os
 
@@ -366,6 +367,57 @@ async def mulesoft_callback_account_request(
         account=account_to_response(crud.get_account(db, db_account.id)),
         request=account_request_to_response(request),
     )
+
+
+class MuleSoftStatusUpdate(BaseModel):
+    integration_status: Optional[str] = None
+    servicenow_status: Optional[str] = None
+    servicenow_ticket_id: Optional[str] = None
+    mulesoft_transaction_id: Optional[str] = None
+    error_message: Optional[str] = None
+    status: Optional[str] = None
+
+
+@router.put("/requests/{request_id}", response_model=schemas.AccountRequestResponse)
+async def update_account_request_status(
+    request_id: int,
+    payload: MuleSoftStatusUpdate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """
+    Update account request integration status.
+    Used by MuleSoft to update validation/approval status.
+    """
+    request = crud.get_account_request(db, request_id)
+    if not request:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Account request not found")
+
+    # Update integration fields
+    request = crud.update_account_request_integration(
+        db,
+        request,
+        integration_status=payload.integration_status,
+        servicenow_status=payload.servicenow_status,
+        servicenow_ticket_id=payload.servicenow_ticket_id,
+        mulesoft_transaction_id=payload.mulesoft_transaction_id,
+        error_message=payload.error_message,
+    )
+
+    # Update main status if provided
+    if payload.status:
+        request.status = payload.status
+        db.commit()
+        db.refresh(request)
+
+    log_action(
+        action_type="ACCOUNT_REQUEST_STATUS_UPDATED",
+        user=current_user.username,
+        details=f"Updated request {request_id} - integration_status: {payload.integration_status}",
+        status="success",
+    )
+
+    return account_request_to_response(request)
 
 
 @router.post("/requests/{request_id}/reject", response_model=schemas.AccountRequestResponse)
