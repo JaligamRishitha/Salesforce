@@ -985,3 +985,7 @@
 [2026-01-20 19:47:59] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: GET /api/dashboard/recent-records | Status: 200 | Time: 0.00s | STATUS: success
 [2026-01-20 19:47:59] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: GET /api/contacts | STATUS: pending
 [2026-01-20 19:47:59] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: GET /api/contacts | Status: 200 | Time: 0.00s | STATUS: success
+[2026-01-28 11:05:20] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /api/health | STATUS: pending
+[2026-01-28 11:05:20] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /api/health | Status: 200 | Time: 0.00s | STATUS: success
+[2026-01-28 11:05:26] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /api/health | STATUS: pending
+[2026-01-28 11:05:26] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /api/health | Status: 200 | Time: 0.00s | STATUS: success
