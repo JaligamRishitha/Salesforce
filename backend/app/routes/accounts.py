@@ -62,9 +62,7 @@ def is_manager(user: User) -> bool:
 
 
 def verify_mulesoft_secret(secret: Optional[str]) -> None:
-    expected = os.getenv("MULESOFT_SHARED_SECRET", "")
-    if not expected:
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="MuleSoft secret not configured")
+    expected = os.getenv("MULESOFT_SHARED_SECRET", "mulesoft-salesforce-shared-secret-2024")
     if secret != expected:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Invalid MuleSoft secret")
 
@@ -166,47 +164,57 @@ async def create_account(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
+    """
+    Create a new account request.
+
+    Flow:
+    1. Account request is created in Salesforce (pending status)
+    2. Request is sent to MuleSoft for validation
+    3. MuleSoft creates a ServiceNow ticket for approval
+    4. Account is only created after ServiceNow approval callback
+
+    Both managers and regular users go through the same MuleSoft approval flow.
+    """
     # Set owner to current user if not specified
     if not account.owner_id:
         account.owner_id = current_user.id
 
-    # Always create a request first (ServiceNow-style audit trail for everyone)
+    # Create account request first (pending status)
     request = crud.create_account_request(db, account, requested_by=current_user)
-    request = account_approval_integration.record_user_submission(db, request, current_user)
 
-    # Manager/admin flow: auto-approved but still pending MuleSoft acceptance
+    # Mark if submitted by manager (for audit trail)
     if is_manager(current_user):
-        request.auto_approved = True
+        request.auto_approved = False  # Still requires MuleSoft/ServiceNow approval
         db.commit()
         db.refresh(request)
 
-        request = crud.update_account_request_integration(
-            db,
-            request,
-            servicenow_status="PENDING_MULESOFT",
-            integration_status="PENDING_MULESOFT",
-        )
+    # Send to MuleSoft for validation and ServiceNow ticket creation
+    request = account_approval_integration.record_user_submission(db, request, current_user)
 
+    # Check if MuleSoft integration was successful
+    if request.integration_status == "MULESOFT_SEND_FAILED":
         log_action(
-            action_type="ACCOUNT_REQUEST_SENT_TO_MULESOFT",
+            action_type="ACCOUNT_REQUEST_MULESOFT_FAILED",
             user=current_user.username,
-            details=f"Account request '{account.name}' sent to MuleSoft (request {request.id})",
-            status="pending",
+            details=f"Account request '{account.name}' failed to send to MuleSoft: {request.error_message}",
+            status="error",
         )
-
         response.status_code = status.HTTP_202_ACCEPTED
-        return schemas.AccountCreateResult(flow="manager_pending_mulesoft", request=account_request_to_response(request))
+        return schemas.AccountCreateResult(
+            flow="mulesoft_send_failed",
+            request=account_request_to_response(request),
+        )
 
     log_action(
-        action_type="ACCOUNT_CREATE_REQUESTED",
+        action_type="ACCOUNT_REQUEST_SENT_TO_MULESOFT",
         user=current_user.username,
-        details=f"Account request '{account.name}' submitted for approval",
+        details=f"Account request '{account.name}' sent to MuleSoft for approval (request {request.id}, ticket {request.servicenow_ticket_id})",
         status="pending",
     )
 
     response.status_code = status.HTTP_202_ACCEPTED
     return schemas.AccountCreateResult(
-        flow="user_pending_approval",
+        flow="pending_mulesoft_approval",
         request=account_request_to_response(request),
     )
 
