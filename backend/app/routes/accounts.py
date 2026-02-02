@@ -2,13 +2,14 @@ from fastapi import APIRouter, Depends, HTTPException, status, Query, Response, 
 from sqlalchemy.orm import Session
 from typing import Optional
 from pydantic import BaseModel
+from datetime import datetime
 import math
 import os
 
 from ..database import get_db
 from ..auth import get_current_user
 from .. import schemas, crud
-from ..db_models import User, AccountRequestStatus, AccountCreationRequest
+from ..db_models import User, AccountRequestStatus, AccountCreationRequest, MulesoftRequest
 from ..logger import log_action
 from ..integrations import account_approval_integration
 
@@ -111,13 +112,50 @@ async def list_accounts(
     )
 
     request_map = latest_requests_by_account_id(db, [a.id for a in accounts])
+    
+    # Get pending account requests (not yet created in accounts table)
+    pending_requests = db.query(AccountCreationRequest).filter(
+        AccountCreationRequest.created_account_id.is_(None),
+        AccountCreationRequest.status.in_([AccountRequestStatus.PENDING.value, "PENDING_MULESOFT"])
+    ).order_by(AccountCreationRequest.created_at.desc()).all()
+    
+    # Convert pending requests to account-like responses
+    pending_items = []
+    for req in pending_requests:
+        pending_items.append(schemas.AccountResponse(
+            id=req.id,
+            name=req.name,
+            phone=None,
+            website=None,
+            industry=None,
+            description=None,
+            billing_address=None,
+            owner_id=req.requested_by_id,
+            created_at=req.created_at,
+            updated_at=req.updated_at,
+            owner_alias=req.requested_by.alias if req.requested_by else None,
+            request_id=req.id,
+            request_status=req.status,
+            servicenow_ticket_id=req.servicenow_ticket_id,
+            integration_status=req.integration_status,
+            correlation_id=req.correlation_id,
+        ))
+
+    # Combine created accounts and pending requests
+    all_items = [account_to_response(a, request_map.get(a.id)) for a in accounts] + pending_items
+    
+    # Sort by created_at
+    all_items.sort(key=lambda x: x.created_at, reverse=(sort_order == "desc"))
+    
+    # Apply pagination
+    paginated_items = all_items[skip:skip + page_size]
 
     return schemas.PaginatedResponse(
-        items=[account_to_response(a, request_map.get(a.id)) for a in accounts],
-        total=total,
+        items=paginated_items,
+        total=len(all_items),
         page=page,
         page_size=page_size,
-        pages=math.ceil(total / page_size) if total > 0 else 0
+        pages=math.ceil(len(all_items) / page_size) if len(all_items) > 0 else 0
     )
 
 

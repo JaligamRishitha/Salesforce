@@ -1,11 +1,9 @@
 {
   "mcpServers": {
     "salesforce-crm": {
-      "command": "python",
-      "args": ["/home/pradeep1a/Network-apps/Salesforce/mcp_server.py"],
-      "env": {
-        "PYTHONUNBUFFERED": "1"
-      }
+      "type": "sse",
+      "url": "http://149.102.158.71:8090/sse",
+      "description": "Salesforce CRM MCP Server (HTTP mode)"
     }
   }
 }

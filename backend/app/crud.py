@@ -202,6 +202,18 @@ def complete_account_request_with_account(
     request.integration_status = "COMPLETED"
     db.commit()
     db.refresh(request)
+    
+    # Create MuleSoft tracking request when account is created
+    mulesoft_request = models.MulesoftRequest(
+        account_id=account.id,
+        request_type="create",
+        status="approved",
+        created_at=datetime.utcnow(),
+        updated_at=datetime.utcnow(),
+    )
+    db.add(mulesoft_request)
+    db.commit()
+    
     return request
 
 

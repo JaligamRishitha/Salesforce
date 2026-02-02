@@ -2,17 +2,23 @@
 """
 MCP Server for Salesforce Clone Backend
 Provides tools to interact with all CRM objects and operations
+
+Runs in HTTP mode by default for remote connections.
+Use --stdio flag for local stdio mode.
 """
 
 import json
 import httpx
 import asyncio
+import os
 from typing import Any, Optional
 from mcp.server import Server
 from mcp.types import TextContent
 
-# Configuration
-API_BASE_URL = "http://localhost:8000"
+# Configuration from environment variables
+API_BASE_URL = os.environ.get("API_BASE_URL", "http://149.102.158.71:4799")
+MCP_HOST = os.environ.get("MCP_HOST", "0.0.0.0")
+MCP_PORT = int(os.environ.get("MCP_PORT", "8090"))
 DEFAULT_TOKEN = None
 
 server = Server("salesforce-crm")
@@ -37,7 +43,7 @@ async def api_call(
         headers["Authorization"] = f"Bearer {token or DEFAULT_TOKEN}"
 
     url = f"{API_BASE_URL}{endpoint}"
-    
+
     async with httpx.AsyncClient(timeout=30.0) as client:
         if method == "GET":
             response = await client.get(url, headers=headers, params=params)
@@ -472,5 +478,67 @@ async def health_check():
     return [TextContent(type="text", text=json.dumps(result))]
 
 
-if __name__ == "__main__":
+def run_http_server():
+    """Run MCP server in HTTP/SSE mode for remote connections"""
+    from mcp.server.sse import SseServerTransport
+    from starlette.applications import Starlette
+    from starlette.routing import Route
+    from starlette.middleware import Middleware
+    from starlette.middleware.cors import CORSMiddleware
+    import uvicorn
+
+    # SSE transport for HTTP-based MCP connections
+    sse = SseServerTransport("/messages")
+
+    async def handle_sse(request):
+        async with sse.connect_sse(
+            request.scope, request.receive, request._send
+        ) as streams:
+            await server.run(
+                streams[0], streams[1], server.create_initialization_options()
+            )
+
+    async def handle_messages(request):
+        await sse.handle_post_message(request.scope, request.receive, request._send)
+
+    # CORS middleware for cross-origin requests
+    middleware = [
+        Middleware(
+            CORSMiddleware,
+            allow_origins=["*"],
+            allow_credentials=True,
+            allow_methods=["*"],
+            allow_headers=["*"],
+        )
+    ]
+
+    app = Starlette(
+        routes=[
+            Route("/sse", endpoint=handle_sse),
+            Route("/messages", endpoint=handle_messages, methods=["POST"]),
+        ],
+        middleware=middleware,
+    )
+
+    print(f"Starting MCP server in HTTP mode")
+    print(f"  Host: {MCP_HOST}")
+    print(f"  Port: {MCP_PORT}")
+    print(f"  API Backend: {API_BASE_URL}")
+    print(f"  SSE Endpoint: http://{MCP_HOST}:{MCP_PORT}/sse")
+    uvicorn.run(app, host=MCP_HOST, port=MCP_PORT)
+
+
+def run_stdio_server():
+    """Run MCP server in stdio mode for local use"""
+    print("Starting MCP server in stdio mode")
     server.run()
+
+
+if __name__ == "__main__":
+    import sys
+
+    # Default to HTTP mode, use --stdio for local mode
+    if "--stdio" in sys.argv:
+        run_stdio_server()
+    else:
+        run_http_server()

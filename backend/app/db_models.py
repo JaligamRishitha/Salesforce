@@ -779,3 +779,19 @@ class SAPIntegrationLog(Base):
 
     # Relationships
     case_mapping = relationship("SAPCaseMapping", backref="integration_logs")
+
+
+class MulesoftRequest(Base):
+    __tablename__ = "mulesoft_requests"
+
+    id = Column(Integer, primary_key=True, index=True)
+    account_id = Column(Integer, ForeignKey("accounts.id"), nullable=True, index=True)
+    request_type = Column(String(50), nullable=False)  # create, update, delete
+    status = Column(String(50), nullable=False, default="pending")  # pending, sent, approved, rejected, failed
+    mulesoft_response = Column(Text, nullable=True)
+    error_message = Column(Text, nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+
+    # Relationships
+    account = relationship("Account", backref="mulesoft_requests")
