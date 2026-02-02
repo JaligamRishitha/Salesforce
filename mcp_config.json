@@ -6,9 +6,14 @@
       "description": "Salesforce CRM MCP Server (HTTP mode)"
     },
     "mulesoft-integration": {
+      "type": "sse",
+      "url": "http://149.102.158.71:8092/sse",
+      "description": "MuleSoft Integration MCP Server for account approval workflow"
+    },
+    "mulesoft-api": {
       "type": "http",
       "url": "http://149.102.158.71:8091",
-      "description": "MuleSoft Integration API for account approval workflow"
+      "description": "MuleSoft HTTP REST API"
     }
   }
 }
