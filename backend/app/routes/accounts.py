@@ -157,66 +157,37 @@ async def list_accounts(
     )
 
 
-@router.post("", response_model=schemas.AccountCreateResult, status_code=status.HTTP_201_CREATED)
+@router.post("", status_code=status.HTTP_201_CREATED)
 async def create_account(
     account: schemas.AccountCreate,
-    response: Response,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    """
-    Create a new account request.
-
-    Flow:
-    1. Account request is created in Salesforce (pending status)
-    2. Request is sent to MuleSoft for validation
-    3. MuleSoft creates a ServiceNow ticket for approval
-    4. Account is only created after ServiceNow approval callback
-
-    Both managers and regular users go through the same MuleSoft approval flow.
-    """
-    # Set owner to current user if not specified
     if not account.owner_id:
         account.owner_id = current_user.id
 
-    # Create account request first (pending status)
-    request = crud.create_account_request(db, account, requested_by=current_user)
-
-    # Mark if submitted by manager (for audit trail)
-    if is_manager(current_user):
-        request.auto_approved = False  # Still requires MuleSoft/ServiceNow approval
-        db.commit()
-        db.refresh(request)
-
-    # Send to MuleSoft for validation and ServiceNow ticket creation
-    request = account_approval_integration.record_user_submission(db, request, current_user)
-
-    # Check if MuleSoft integration was successful
-    if request.integration_status == "MULESOFT_SEND_FAILED":
-        log_action(
-            action_type="ACCOUNT_REQUEST_MULESOFT_FAILED",
-            user=current_user.username,
-            details=f"Account request '{account.name}' failed to send to MuleSoft: {request.error_message}",
-            status="error",
-        )
-        response.status_code = status.HTTP_202_ACCEPTED
-        return schemas.AccountCreateResult(
-            flow="mulesoft_send_failed",
-            request=account_request_to_response(request),
-        )
-
-    log_action(
-        action_type="ACCOUNT_REQUEST_SENT_TO_MULESOFT",
-        user=current_user.username,
-        details=f"Account request '{account.name}' sent to MuleSoft for approval (request {request.id}, ticket {request.servicenow_ticket_id})",
+    # Create MuleSoft request
+    mulesoft_req = MulesoftRequest(
+        account_id=None,
+        request_type="create",
         status="pending",
+        created_at=datetime.now(),
+        updated_at=datetime.now()
     )
+    db.add(mulesoft_req)
+    db.commit()
+    db.refresh(mulesoft_req)
 
-    response.status_code = status.HTTP_202_ACCEPTED
-    return schemas.AccountCreateResult(
-        flow="pending_mulesoft_approval",
-        request=account_request_to_response(request),
-    )
+    # Your MCP integration will handle sending to MuleSoft
+    # and updating status to "approved" when done
+
+    return {
+        "mulesoft_request": {
+            "id": mulesoft_req.id,
+            "status": mulesoft_req.status,
+            "created_at": mulesoft_req.created_at
+        }
+    }
 
 
 @router.get("/requests", response_model=schemas.PaginatedResponse)
