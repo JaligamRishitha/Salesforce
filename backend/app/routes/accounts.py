@@ -5,6 +5,7 @@ from pydantic import BaseModel
 from datetime import datetime
 import math
 import os
+import uuid
 
 from ..database import get_db
 from ..auth import get_current_user
@@ -98,6 +99,10 @@ async def list_accounts(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
+    """
+    List only approved/created accounts.
+    Pending requests are shown in the Requests tab.
+    """
     skip = (page - 1) * page_size
     accounts, total = crud.get_accounts(
         db,
@@ -110,82 +115,61 @@ async def list_accounts(
     )
 
     request_map = latest_requests_by_account_id(db, [a.id for a in accounts])
-    
-    # Get pending account requests (not yet created in accounts table)
-    pending_requests = db.query(AccountCreationRequest).filter(
-        AccountCreationRequest.created_account_id.is_(None),
-        AccountCreationRequest.status.in_([AccountRequestStatus.PENDING.value, "PENDING_MULESOFT"])
-    ).order_by(AccountCreationRequest.created_at.desc()).all()
-    
-    # Convert pending requests to account-like responses
-    pending_items = []
-    for req in pending_requests:
-        pending_items.append(schemas.AccountResponse(
-            id=req.id,
-            name=req.name,
-            phone=None,
-            website=None,
-            industry=None,
-            description=None,
-            billing_address=None,
-            owner_id=req.requested_by_id,
-            created_at=req.created_at,
-            updated_at=req.updated_at,
-            owner_alias=req.requested_by.alias if req.requested_by else None,
-            request_id=req.id,
-            request_status=req.status,
-            servicenow_ticket_id=req.servicenow_ticket_id,
-            integration_status=req.integration_status,
-            correlation_id=req.correlation_id,
-        ))
-
-    # Combine created accounts and pending requests
-    all_items = [account_to_response(a, request_map.get(a.id)) for a in accounts] + pending_items
-    
-    # Sort by created_at
-    all_items.sort(key=lambda x: x.created_at, reverse=(sort_order == "desc"))
-    
-    # Apply pagination
-    paginated_items = all_items[skip:skip + page_size]
 
     return schemas.PaginatedResponse(
-        items=paginated_items,
-        total=len(all_items),
+        items=[account_to_response(a, request_map.get(a.id)) for a in accounts],
+        total=total,
         page=page,
         page_size=page_size,
-        pages=math.ceil(len(all_items) / page_size) if len(all_items) > 0 else 0
+        pages=math.ceil(total / page_size) if total > 0 else 0
     )
 
 
-@router.post("", status_code=status.HTTP_201_CREATED)
+@router.post("", status_code=status.HTTP_202_ACCEPTED)
 async def create_account(
     account: schemas.AccountCreate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user),
+    response: Response = None
 ):
     if not account.owner_id:
         account.owner_id = current_user.id
 
-    # Create MuleSoft request
-    mulesoft_req = MulesoftRequest(
-        account_id=None,
-        request_type="create",
-        status="pending",
-        created_at=datetime.now(),
-        updated_at=datetime.now()
+    # Create account request - DO NOT create account yet
+    correlation_id = str(uuid.uuid4())
+    request = AccountCreationRequest(
+        name=account.name,
+        requested_payload=account.model_dump(),
+        status=AccountRequestStatus.PENDING.value,
+        correlation_id=correlation_id,
+        requested_by_id=current_user.id,
     )
-    db.add(mulesoft_req)
+    db.add(request)
     db.commit()
-    db.refresh(mulesoft_req)
+    db.refresh(request)
 
-    # Your MCP integration will handle sending to MuleSoft
-    # and updating status to "approved" when done
+    # Send to MuleSoft → ServiceNow for approval
+    if is_manager(current_user):
+        request = account_approval_integration.record_manager_audit(db, request, current_user)
+    else:
+        request = account_approval_integration.record_user_submission(db, request, current_user)
+
+    log_action(
+        action_type="ACCOUNT_REQUEST_CREATED",
+        user=current_user.username,
+        details=f"Created account request {request.id} - sent to MuleSoft/ServiceNow",
+        status="success",
+    )
 
     return {
-        "mulesoft_request": {
-            "id": mulesoft_req.id,
-            "status": mulesoft_req.status,
-            "created_at": mulesoft_req.created_at
+        "request": {
+            "id": request.id,
+            "name": request.name,
+            "status": request.status,
+            "integration_status": request.integration_status,
+            "mulesoft_transaction_id": request.mulesoft_transaction_id,
+            "servicenow_ticket_id": request.servicenow_ticket_id,
+            "created_at": request.created_at
         }
     }
 
@@ -223,17 +207,15 @@ async def approve_account_request(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    if not is_manager(current_user):
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Manager approval required")
-
+    """Approve request and create account (called by ServiceNow webhook or manager)"""
     request = crud.get_account_request(db, request_id)
     if not request:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Account request not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Request not found")
+    
     if request.status != AccountRequestStatus.PENDING.value:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Request is not pending")
 
-    request = account_approval_integration.record_approval_outcome(db, request, approved=True)
-
+    # Create the actual account
     try:
         payload = request.requested_payload or {}
         account_data = schemas.AccountCreate(**payload)
@@ -241,29 +223,31 @@ async def approve_account_request(
             account_data.owner_id = request.requested_by_id
 
         db_account = crud.create_account(db, account_data)
-        request = crud.complete_account_request_with_account(db, request, db_account, current_user)
-        request = crud.update_account_request_integration(
-            db,
-            request,
-            servicenow_status="COMPLETED",
-            integration_status="COMPLETED",
+        
+        # Update request status
+        request.status = AccountRequestStatus.APPROVED.value
+        request.created_account_id = db_account.id
+        request.integration_status = "APPROVED"
+        db.commit()
+        
+        log_action(
+            action_type="ACCOUNT_APPROVED",
+            user=current_user.username,
+            details=f"Approved request {request.id} -> account {db_account.id}",
+            status="success",
+        )
+        
+        return schemas.AccountCreateResult(
+            flow="approved_and_created",
+            account=account_to_response(db_account),
+            request=account_request_to_response(request),
         )
     except Exception as exc:
-        request = crud.fail_account_request(db, request, str(exc))
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Account creation failed")
-
-    log_action(
-        action_type="ACCOUNT_REQUEST_APPROVED",
-        user=current_user.username,
-        details=f"Approved account request {request.id} -> account {request.created_account_id}",
-        status="success",
-    )
-
-    return schemas.AccountCreateResult(
-        flow="approved_and_created",
-        account=account_to_response(crud.get_account(db, db_account.id)),
-        request=account_request_to_response(request),
-    )
+        request.status = AccountRequestStatus.FAILED.value
+        request.integration_status = "FAILED"
+        request.error_message = str(exc)
+        db.commit()
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(exc))
 
 
 @router.post("/requests/{request_id}/mulesoft-accept", response_model=schemas.AccountCreateResult)

@@ -16,6 +16,7 @@ router = APIRouter(prefix="/api/mulesoft", tags=["mulesoft"])
 class MulesoftRequestResponse(BaseModel):
     id: int
     account_id: Optional[int]
+    name: Optional[str]
     request_type: str
     status: str
     mulesoft_response: Optional[str]

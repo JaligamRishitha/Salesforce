@@ -133,6 +133,7 @@ class AccountResponse(AccountBase):
 
 class AccountRequestStatus(str, Enum):
     PENDING = "PENDING"
+    APPROVED = "APPROVED"
     COMPLETED = "COMPLETED"
     REJECTED = "REJECTED"
     FAILED = "FAILED"

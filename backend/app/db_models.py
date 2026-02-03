@@ -127,6 +127,8 @@ class Account(Base):
     description = Column(Text)
     billing_address = Column(Text)
     owner_id = Column(Integer, ForeignKey("users.id"))
+    correlation_id = Column(String(255), nullable=True)
+    integration_status = Column(String(50), nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
@@ -139,6 +141,7 @@ class Account(Base):
 
 class AccountRequestStatus(str, enum.Enum):
     PENDING = "PENDING"
+    APPROVED = "APPROVED"
     COMPLETED = "COMPLETED"
     REJECTED = "REJECTED"
     FAILED = "FAILED"
@@ -786,6 +789,7 @@ class MulesoftRequest(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     account_id = Column(Integer, ForeignKey("accounts.id"), nullable=True, index=True)
+    name = Column(String(255), nullable=True)  # Store account name for create requests
     request_type = Column(String(50), nullable=False)  # create, update, delete
     status = Column(String(50), nullable=False, default="pending")  # pending, sent, approved, rejected, failed
     mulesoft_response = Column(Text, nullable=True)
