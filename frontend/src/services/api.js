@@ -47,6 +47,9 @@ export const accountsAPI = {
   update: (id, data) => api.put(`/api/accounts/${id}`, data),
   delete: (id) => api.delete(`/api/accounts/${id}`),
   changeOwner: (id, ownerId) => api.put(`/api/accounts/${id}/change-owner?owner_id=${ownerId}`),
+  listRequests: (params) => api.get('/api/accounts/requests', { params }),
+  approveRequest: (requestId) => api.post(`/api/accounts/requests/${requestId}/approve`),
+  mulesoftAccept: (requestId) => api.post(`/api/accounts/requests/${requestId}/mulesoft-accept`),
 };
 
 // Contacts
@@ -149,6 +152,26 @@ export const serviceAPI = {
   listSLAs: (skip = 0, limit = 25) =>
     api.get('/api/service/slas', { params: { skip, limit } }),
   createSLA: (data) => api.post('/api/service/slas', data),
+
+  // Service Appointments (Scenario 2)
+  listAppointments: (params) => api.get('/api/service/appointments', { params }),
+  createAppointment: (data) => api.post('/api/service/appointments', data),
+  getAppointment: (id) => api.get(`/api/service/appointments/${id}`),
+
+  // Scheduling Requests (MuleSoft Scenario 2)
+  listSchedulingRequests: (params) => api.get('/api/service/scheduling-requests', { params }),
+  approveSchedulingRequest: (requestId, technicianId, technicianName) =>
+    api.post(`/api/service/scheduling-requests/${requestId}/approve?technician_id=${technicianId}&technician_name=${encodeURIComponent(technicianName)}`),
+
+  // Work Orders (Scenario 3)
+  listWorkOrders: (params) => api.get('/api/service/work-orders', { params }),
+  createWorkOrder: (data) => api.post('/api/service/work-orders', data),
+  getWorkOrder: (id) => api.get(`/api/service/work-orders/${id}`),
+  checkEntitlement: (workOrderId) => api.get(`/api/service/work-orders/${workOrderId}/check-entitlement`),
+
+  // SAP Integration helpers
+  checkPartsAvailability: (appointmentId) => api.get(`/api/service/appointments/${appointmentId}/check-parts`),
+  retrySAPSync: (recordId, scenarioType) => api.post(`/api/mulesoft/retry/${scenarioType}/${recordId}`),
 };
 
 export default api;

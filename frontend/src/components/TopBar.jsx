@@ -127,17 +127,6 @@ export default function TopBar() {
 
       {/* Right side */}
       <div className="flex items-center space-x-2">
-        {/* Trial Badge */}
-        <div className="flex items-center bg-sf-blue-600 rounded-full px-3 py-1 mr-2">
-          <span className="text-white text-xs">Days left in Starter trial:</span>
-          <span className="ml-2 bg-white text-sf-blue-500 rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold">
-            29
-          </span>
-        </div>
-        <button className="px-3 py-1.5 bg-white text-sf-blue-500 rounded-md text-sm font-medium hover:bg-gray-100">
-          Buy Now
-        </button>
-
         {/* Icons */}
         <button className="p-2 text-white hover:bg-sf-blue-600 rounded-md">
           <QuestionMarkCircleIcon className="w-5 h-5" />

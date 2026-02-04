@@ -9,6 +9,9 @@ import {
   ShoppingCartIcon,
   Squares2X2Icon,
   UserCircleIcon,
+  CogIcon,
+  MagnifyingGlassIcon,
+  DocumentIcon,
 } from '@heroicons/react/24/outline';
 import {
   HomeIcon as HomeIconSolid,
@@ -20,6 +23,9 @@ import {
   ShoppingCartIcon as ShoppingCartIconSolid,
   Squares2X2Icon as Squares2X2IconSolid,
   UserCircleIcon as UserCircleIconSolid,
+  CogIcon as CogIconSolid,
+  MagnifyingGlassIcon as MagnifyingGlassIconSolid,
+  DocumentIcon as DocumentIconSolid,
 } from '@heroicons/react/24/solid';
 
 const navItems = [
@@ -29,9 +35,12 @@ const navItems = [
   { path: '/sales', label: 'Sales', Icon: ChartBarIcon, IconSolid: ChartBarIconSolid },
   { path: '/service', label: 'Service', Icon: HeartIcon, IconSolid: HeartIconSolid },
   { path: '/service-management', label: 'Service Mgmt', Icon: Squares2X2Icon, IconSolid: Squares2X2IconSolid },
-  { path: '/marketing', label: 'Marketing', Icon: MegaphoneIcon, IconSolid: MegaphoneIconSolid },
-  { path: '/commerce', label: 'Commerce', Icon: ShoppingCartIcon, IconSolid: ShoppingCartIconSolid },
-  { path: '/generative', label: 'Generative Canvas', Icon: Squares2X2Icon, IconSolid: Squares2X2IconSolid },
+  // { path: '/marketing', label: 'Marketing', Icon: MegaphoneIcon, IconSolid: MegaphoneIconSolid }, // Hidden
+  // { path: '/commerce', label: 'Commerce', Icon: ShoppingCartIcon, IconSolid: ShoppingCartIconSolid }, // Hidden
+  // { path: '/generative', label: 'Generative Canvas', Icon: Squares2X2Icon, IconSolid: Squares2X2IconSolid }, // Hidden
+  { path: '/requests', label: 'Requests', Icon: DocumentIcon, IconSolid: DocumentIconSolid },
+  { path: '/mulesoft', label: 'MuleSoft', Icon: CogIcon, IconSolid: CogIconSolid },
+  { path: '/integration-tracking', label: 'Tracking', Icon: MagnifyingGlassIcon, IconSolid: MagnifyingGlassIconSolid },
   { path: '/account', label: 'Your Account', Icon: UserCircleIcon, IconSolid: UserCircleIconSolid },
 ];
 

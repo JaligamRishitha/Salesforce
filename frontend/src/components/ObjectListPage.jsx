@@ -514,10 +514,10 @@ export default function ObjectListPage({
                             column.render(item)
                           ) : column.key === displayColumns[0].key ? (
                             <span className="text-sf-blue-500 hover:underline font-medium">
-                              {item[column.key]}
+                              {item[column.key] || '-'}
                             </span>
                           ) : (
-                            <span className="text-gray-700">{item[column.key]}</span>
+                            <span className="text-gray-700">{item[column.key] || '-'}</span>
                           )}
                         </td>
                       ))}

@@ -397,7 +397,7 @@ export default function RecordFormModal({ isOpen, onClose, objectType, onSave, i
     <div className="fixed inset-0 z-50 overflow-y-auto">
       <div className="flex items-center justify-center min-h-screen px-4 py-8">
         {/* Backdrop */}
-        <div className="fixed inset-0 bg-black bg-opacity-50" onClick={onClose} />
+        <div className="fixed inset-0 bg-black/50" onClick={onClose} />
 
         {/* Modal */}
         <div className="relative bg-white rounded-lg shadow-xl w-full max-w-2xl">
