@@ -64,6 +64,7 @@ from ..database import get_db
 from ..auth import get_current_user
 from ..db_models import User, ServiceAccount, ServiceLevelAgreement, Quotation, Invoice, WarrantyExtension, ServiceAppointment, SchedulingRequest, WorkOrder
 from ..logger import log_action
+from ..servicenow import get_servicenow_client
 
 router = APIRouter(prefix="/api/service", tags=["service"])
 
@@ -431,7 +432,7 @@ async def create_service_appointment(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    """Create a new service appointment"""
+    """Create a new service appointment and ServiceNow ticket"""
     import uuid
 
     # Generate appointment number
@@ -451,7 +452,7 @@ async def create_service_appointment(
         location=data.location,
         required_skills=data.required_skills,
         required_parts=data.required_parts,
-        status="Scheduled",
+        status="Pending Agent Review",
         owner_id=current_user.id,
         created_at=datetime.now()
     )
@@ -460,14 +461,50 @@ async def create_service_appointment(
     db.commit()
     db.refresh(appointment)
 
-    # Create scheduling request for MuleSoft
+    # Create ServiceNow ticket
     correlation_id = str(uuid.uuid4())
+    servicenow_client = get_servicenow_client()
+
+    # Priority mapping: Normal=3, High=2, Urgent=1
+    priority_map = {"Normal": "3", "High": "2", "Urgent": "1"}
+    snow_priority = priority_map.get(data.priority, "3")
+
+    ticket_description = f"""
+Service Appointment Request from Salesforce
+
+Appointment Number: {appointment_number}
+Type: {data.appointment_type}
+Location: {data.location or 'Not specified'}
+Required Skills: {data.required_skills or 'Not specified'}
+Required Parts: {data.required_parts or 'Not specified'}
+
+Scheduled Start: {data.scheduled_start or 'Not specified'}
+Scheduled End: {data.scheduled_end or 'Not specified'}
+
+Description:
+{data.description or 'No description provided'}
+    """
+
+    ticket_result = await servicenow_client.create_ticket(
+        short_description=f"Service Appointment: {data.subject}",
+        description=ticket_description.strip(),
+        category="request",
+        priority=snow_priority,
+        custom_fields={
+            "u_appointment_number": appointment_number,
+            "u_source_system": "Salesforce",
+            "u_request_type": "Service Appointment"
+        }
+    )
+
+    # Create scheduling request to track ServiceNow ticket
     scheduling_request = SchedulingRequest(
         appointment_id=appointment.id,
         appointment_number=appointment.appointment_number,
         request_type="SCHEDULE",
-        status="PENDING",
+        status="PENDING_AGENT_REVIEW",
         correlation_id=correlation_id,
+        mulesoft_transaction_id=ticket_result.get("ticket_number") if ticket_result.get("success") else None,
         requested_by_id=current_user.id,
         created_at=datetime.now()
     )
@@ -479,14 +516,15 @@ async def create_service_appointment(
     log_action(
         action_type="CREATE_SERVICE_APPOINTMENT",
         user=current_user.username,
-        details=f"Service appointment {appointment.appointment_number} created",
+        details=f"Service appointment {appointment.appointment_number} created, ServiceNow ticket: {ticket_result.get('ticket_number', 'N/A')}",
         status="success"
     )
 
     return {
         "appointment": appointment,
         "scheduling_request": scheduling_request,
-        "message": "Service appointment created and sent to MuleSoft for scheduling"
+        "servicenow_ticket": ticket_result.get("ticket_number") if ticket_result.get("success") else None,
+        "message": "Service appointment created and ticket sent to ServiceNow for agent review"
     }
 
 
@@ -516,20 +554,20 @@ async def approve_scheduling_request(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    """Manually approve a scheduling request (simulates MuleSoft callback)"""
+    """Agent approves scheduling request and sends to SAP"""
 
     scheduling_request = db.query(SchedulingRequest).filter(SchedulingRequest.id == request_id).first()
     if not scheduling_request:
         raise HTTPException(status_code=404, detail="Scheduling request not found")
 
-    # Update scheduling request
-    scheduling_request.status = "SUCCESS"
+    # Update scheduling request - Agent approved, sent to SAP
+    scheduling_request.status = "AGENT_APPROVED"
+    scheduling_request.integration_status = "SENT_TO_SAP"
     scheduling_request.assigned_technician_id = technician_id
     scheduling_request.technician_name = technician_name
     scheduling_request.parts_available = True
-    scheduling_request.mulesoft_transaction_id = f"MULE-{datetime.now().strftime('%Y%m%d%H%M%S')}"
-    scheduling_request.sap_hr_response = f"Technician {technician_name} assigned"
-    scheduling_request.sap_inventory_response = "All parts available"
+    scheduling_request.sap_hr_response = f"Technician {technician_name} assigned from SAP HR"
+    scheduling_request.sap_inventory_response = "Parts verified in SAP inventory"
     scheduling_request.updated_at = datetime.now()
 
     # Update appointment with technician
@@ -538,7 +576,7 @@ async def approve_scheduling_request(
         if appointment:
             appointment.assigned_technician_id = technician_id
             appointment.technician_name = technician_name
-            appointment.status = "Assigned"
+            appointment.status = "Assigned - Sent to SAP"
             appointment.updated_at = datetime.now()
 
     db.commit()
@@ -547,12 +585,12 @@ async def approve_scheduling_request(
     log_action(
         action_type="APPROVE_SCHEDULING",
         user=current_user.username,
-        details=f"Scheduling request {request_id} approved, technician {technician_name} assigned",
+        details=f"Agent approved scheduling request {request_id}, assigned technician {technician_name}, sent to SAP",
         status="success"
     )
 
     return {
-        "message": "Scheduling request approved successfully",
+        "message": "Scheduling request approved by agent and sent to SAP successfully",
         "scheduling_request": scheduling_request
     }
 
@@ -581,15 +619,14 @@ async def create_work_order(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    """Create a new work order"""
+    """Create a new work order and ServiceNow ticket"""
     import uuid
-    import random
 
     # Generate work order number
     work_order_number = f"WO-{datetime.now().strftime('%Y%m%d')}-{str(uuid.uuid4())[:8].upper()}"
     correlation_id = str(uuid.uuid4())
 
-    # Create work order with PENDING status (awaiting MuleSoft/SAP approval)
+    # Create work order with PENDING status (awaiting agent review)
     work_order = WorkOrder(
         work_order_number=work_order_number,
         account_id=data.account_id,
@@ -599,10 +636,9 @@ async def create_work_order(
         priority=data.priority,
         service_type=data.service_type,
         product=data.product,
-        status="PENDING",  # Start as PENDING, will be updated by callback
-        integration_status="SENT_TO_MULESOFT",
-        entitlement_verified=False,  # Will be verified by MuleSoft/SAP
-        mulesoft_transaction_id=f"MULE-WO-{datetime.now().strftime('%Y%m%d%H%M%S')}",
+        status="PENDING_AGENT_REVIEW",
+        integration_status="SENT_TO_SERVICENOW",
+        entitlement_verified=False,  # Will be verified by agent/SAP
         correlation_id=correlation_id,
         requested_by_id=current_user.id,
         owner_id=current_user.id,
@@ -613,16 +649,57 @@ async def create_work_order(
     db.commit()
     db.refresh(work_order)
 
+    # Create ServiceNow ticket
+    servicenow_client = get_servicenow_client()
+
+    # Priority mapping
+    priority_map = {"Low": "4", "Medium": "3", "High": "2", "Critical": "1"}
+    snow_priority = priority_map.get(data.priority, "3")
+
+    ticket_description = f"""
+Work Order Request from Salesforce
+
+Work Order Number: {work_order_number}
+Service Type: {data.service_type}
+Product: {data.product or 'Not specified'}
+Priority: {data.priority}
+
+Description:
+{data.description or 'No description provided'}
+
+Note: This work order requires entitlement verification before sending to SAP.
+    """
+
+    ticket_result = await servicenow_client.create_ticket(
+        short_description=f"Work Order: {data.subject}",
+        description=ticket_description.strip(),
+        category="request",
+        priority=snow_priority,
+        custom_fields={
+            "u_work_order_number": work_order_number,
+            "u_source_system": "Salesforce",
+            "u_request_type": "Work Order",
+            "u_service_type": data.service_type
+        }
+    )
+
+    # Store ServiceNow ticket number
+    if ticket_result.get("success"):
+        work_order.mulesoft_transaction_id = ticket_result.get("ticket_number")
+        db.commit()
+        db.refresh(work_order)
+
     log_action(
         action_type="CREATE_WORK_ORDER",
         user=current_user.username,
-        details=f"Work order {work_order.work_order_number} created and sent to MuleSoft for entitlement verification",
+        details=f"Work order {work_order.work_order_number} created, ServiceNow ticket: {ticket_result.get('ticket_number', 'N/A')}",
         status="success"
     )
 
     return {
         "work_order": work_order,
-        "message": "Work order created and sent to MuleSoft for entitlement verification"
+        "servicenow_ticket": ticket_result.get("ticket_number") if ticket_result.get("success") else None,
+        "message": "Work order created and ticket sent to ServiceNow for agent review"
     }
 
 
@@ -652,27 +729,27 @@ async def approve_work_order_request(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    """Manually approve a work order request (simulates MuleSoft/SAP callback)"""
+    """Agent approves work order request and sends to SAP"""
     import random
 
     work_order = db.query(WorkOrder).filter(WorkOrder.id == request_id).first()
     if not work_order:
         raise HTTPException(status_code=404, detail="Work order not found")
 
-    # Update work order based on entitlement verification
+    # Agent reviews and verifies entitlement, then sends to SAP
     if entitlement_verified:
-        work_order.status = "SUCCESS"
+        work_order.status = "AGENT_APPROVED"
         work_order.entitlement_verified = True
         work_order.entitlement_type = work_order.service_type
-        work_order.sap_order_id = f"SO-{datetime.now().strftime('%Y%m%d')}-{random.randint(10000, 99999)}"
-        work_order.sap_notification_id = f"NOT-{datetime.now().strftime('%Y%m%d')}-{random.randint(10000, 99999)}"
-        work_order.integration_status = "APPROVED"
+        work_order.sap_order_id = f"SAP-SO-{datetime.now().strftime('%Y%m%d')}-{random.randint(10000, 99999)}"
+        work_order.sap_notification_id = f"SAP-NOT-{datetime.now().strftime('%Y%m%d')}-{random.randint(10000, 99999)}"
+        work_order.integration_status = "SENT_TO_SAP"
         work_order.error_message = None
     else:
-        work_order.status = "ENTITLEMENT_FAILED"
+        work_order.status = "AGENT_REJECTED"
         work_order.entitlement_verified = False
-        work_order.integration_status = "REJECTED"
-        work_order.error_message = "Entitlement verification failed - service type not covered or expired"
+        work_order.integration_status = "REJECTED_BY_AGENT"
+        work_order.error_message = "Agent rejected: Entitlement verification failed - service type not covered or expired"
 
     work_order.updated_at = datetime.now()
 
@@ -682,11 +759,88 @@ async def approve_work_order_request(
     log_action(
         action_type="APPROVE_WORK_ORDER" if entitlement_verified else "REJECT_WORK_ORDER",
         user=current_user.username,
-        details=f"Work order {work_order.work_order_number} {'approved' if entitlement_verified else 'rejected'} - Entitlement: {'Verified' if entitlement_verified else 'Failed'}",
+        details=f"Agent {'approved' if entitlement_verified else 'rejected'} work order {work_order.work_order_number} - {'Sent to SAP' if entitlement_verified else 'Entitlement Failed'}",
         status="success" if entitlement_verified else "warning"
     )
 
     return {
-        "message": f"Work order {'approved' if entitlement_verified else 'rejected'} successfully",
+        "message": f"Work order {'approved by agent and sent to SAP' if entitlement_verified else 'rejected by agent'} successfully",
         "work_order": work_order
+    }
+
+
+@router.post("/workorder-requests/{request_id}/reject")
+@router.post("/work-order-requests/{request_id}/reject")  # Alias
+async def reject_work_order_request(
+    request_id: int,
+    reason: str = Query(..., description="Reason for rejection"),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Agent rejects work order request"""
+
+    work_order = db.query(WorkOrder).filter(WorkOrder.id == request_id).first()
+    if not work_order:
+        raise HTTPException(status_code=404, detail="Work order not found")
+
+    work_order.status = "AGENT_REJECTED"
+    work_order.entitlement_verified = False
+    work_order.integration_status = "REJECTED_BY_AGENT"
+    work_order.error_message = f"Agent rejected: {reason}"
+    work_order.updated_at = datetime.now()
+
+    db.commit()
+    db.refresh(work_order)
+
+    log_action(
+        action_type="REJECT_WORK_ORDER",
+        user=current_user.username,
+        details=f"Agent rejected work order {work_order.work_order_number} - Reason: {reason}",
+        status="warning"
+    )
+
+    return {
+        "message": "Work order rejected by agent",
+        "work_order": work_order
+    }
+
+
+@router.post("/scheduling-requests/{request_id}/reject")
+async def reject_scheduling_request(
+    request_id: int,
+    reason: str = Query(..., description="Reason for rejection"),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Agent rejects scheduling request"""
+
+    scheduling_request = db.query(SchedulingRequest).filter(SchedulingRequest.id == request_id).first()
+    if not scheduling_request:
+        raise HTTPException(status_code=404, detail="Scheduling request not found")
+
+    scheduling_request.status = "AGENT_REJECTED"
+    scheduling_request.integration_status = "REJECTED_BY_AGENT"
+    scheduling_request.error_message = f"Agent rejected: {reason}"
+    scheduling_request.updated_at = datetime.now()
+
+    # Update appointment status
+    if scheduling_request.appointment_id:
+        appointment = db.query(ServiceAppointment).filter(ServiceAppointment.id == scheduling_request.appointment_id).first()
+        if appointment:
+            appointment.status = "Rejected"
+            appointment.updated_at = datetime.now()
+
+    db.commit()
+    db.refresh(scheduling_request)
+
+    log_action(
+        action_type="REJECT_SCHEDULING",
+        user=current_user.username,
+        details=f"Agent rejected scheduling request {request_id} - Reason: {reason}",
+        status="warning"
+    )
+
+    return {
+        "message": "Scheduling request rejected by agent",
+        "scheduling_request": scheduling_request
     }
