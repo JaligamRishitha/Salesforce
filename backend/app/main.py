@@ -6,7 +6,7 @@ import os
 import time
 
 from .database import engine, Base
-from .routes import auth, accounts, contacts, leads, opportunities, cases, dashboard, activities, logs, service, platform_events, sap_integration
+from .routes import auth, accounts, contacts, leads, opportunities, cases, dashboard, activities, logs, service, platform_events, sap_integration, mulesoft, mulesoft_integration
 from .logger import log_action
 
 
@@ -76,7 +76,17 @@ async def log_requests(request: Request, call_next):
 # CORS configuration
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://localhost:3000", "http://127.0.0.1:5173"],
+    allow_origins=[
+        "http://localhost:5173",
+        "http://localhost:3000",
+        "http://localhost:8090",
+        "http://127.0.0.1:5173",
+        "http://127.0.0.1:8090",
+        "http://149.102.158.71:5173",
+        "http://149.102.158.71:4799",
+        "http://149.102.158.71:8090",
+        "*",  # Allow all origins for MCP connections
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -95,6 +105,8 @@ app.include_router(logs.router)
 app.include_router(service.router)
 app.include_router(platform_events.router)
 app.include_router(sap_integration.router)
+app.include_router(mulesoft.router)
+app.include_router(mulesoft_integration.router)
 
 
 @app.get("/")

@@ -7,6 +7,7 @@ import Login from './pages/Login';
 import Home from './pages/Home';
 import Contacts from './pages/Contacts';
 import Accounts from './pages/Accounts';
+import AccountRequests from './pages/AccountRequests';
 import Sales from './pages/Sales';
 import Service from './pages/Service';
 import ServiceManagement from './pages/ServiceManagement';
@@ -64,6 +65,7 @@ function AppRoutes() {
         <Route path="contacts" element={<Contacts />} />
         <Route path="contacts/:id" element={<RecordDetail objectType="contact" api={contactsAPI} />} />
         <Route path="accounts" element={<Accounts />} />
+        <Route path="requests" element={<AccountRequests />} />
         <Route path="accounts/:id" element={<RecordDetail objectType="account" api={accountsAPI} />} />
         <Route path="leads" element={<Sales />} />
         <Route path="leads/:id" element={<RecordDetail objectType="lead" api={leadsAPI} />} />

@@ -7,6 +7,7 @@ from enum import Enum
 # Enums
 class UserRole(str, Enum):
     admin = "admin"
+    manager = "manager"
     user = "user"
 
 
@@ -119,9 +120,64 @@ class AccountResponse(AccountBase):
     created_at: datetime
     updated_at: Optional[datetime]
     owner_alias: Optional[str] = None
+    # Request/audit details (latest related request, if any)
+    request_id: Optional[int] = None
+    request_status: Optional[str] = None
+    servicenow_ticket_id: Optional[str] = None
+    integration_status: Optional[str] = None
+    correlation_id: Optional[str] = None
 
     class Config:
         from_attributes = True
+
+
+class AccountRequestStatus(str, Enum):
+    PENDING = "PENDING"
+    APPROVED = "APPROVED"
+    COMPLETED = "COMPLETED"
+    REJECTED = "REJECTED"
+    FAILED = "FAILED"
+
+
+class AccountRequestResponse(BaseModel):
+    id: int
+    name: str
+    status: AccountRequestStatus
+    auto_approved: bool = False
+    correlation_id: Optional[str] = None
+    requested_by_id: int
+    approved_by_id: Optional[int] = None
+    servicenow_ticket_id: Optional[str] = None
+    servicenow_status: Optional[str] = None
+    mulesoft_transaction_id: Optional[str] = None
+    integration_status: Optional[str] = None
+    error_message: Optional[str] = None
+    created_account_id: Optional[int] = None
+    created_at: datetime
+    updated_at: Optional[datetime] = None
+
+    class Config:
+        from_attributes = True
+
+
+class AccountCreateResult(BaseModel):
+    """
+    Unified response for account creation flows:
+    - manager/admin: `account` is set and flow is auto-create
+    - user: `request` is set and flow is pending approval
+    """
+    flow: str
+    account: Optional[AccountResponse] = None
+    request: Optional[AccountRequestResponse] = None
+
+
+class MuleSoftAccountCallback(BaseModel):
+    """
+    Callback payload MuleSoft can send back to Salesforce.
+    """
+    accepted: bool = True
+    status: Optional[str] = None
+    message: Optional[str] = None
 
 
 # Contact Schemas

@@ -985,3 +985,900 @@
 [2026-01-20 19:47:59] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: GET /api/dashboard/recent-records | Status: 200 | Time: 0.00s | STATUS: success
 [2026-01-20 19:47:59] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: GET /api/contacts | STATUS: pending
 [2026-01-20 19:47:59] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: GET /api/contacts | Status: 200 | Time: 0.00s | STATUS: success
+[2026-01-28 11:05:20] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /api/health | STATUS: pending
+[2026-01-28 11:05:20] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /api/health | Status: 200 | Time: 0.00s | STATUS: success
+[2026-01-28 11:05:26] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /api/health | STATUS: pending
+[2026-01-28 11:05:26] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /api/health | Status: 200 | Time: 0.00s | STATUS: success
+[2026-01-30 07:25:31] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /health | STATUS: pending
+[2026-01-30 07:25:31] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /health | Status: 404 | Time: 0.00s | STATUS: success
+[2026-01-30 07:25:41] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /openapi.json | STATUS: pending
+[2026-01-30 07:25:41] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /openapi.json | Status: 200 | Time: 0.25s | STATUS: success
+[2026-01-30 07:25:48] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /docs | STATUS: pending
+[2026-01-30 07:25:48] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /docs | Status: 200 | Time: 0.00s | STATUS: success
+[2026-01-30 07:25:59] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /api/health | STATUS: pending
+[2026-01-30 07:25:59] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /api/health | Status: 200 | Time: 0.00s | STATUS: success
+[2026-01-30 07:26:01] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET / | STATUS: pending
+[2026-01-30 07:26:01] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET / | Status: 200 | Time: 0.00s | STATUS: success
+[2026-01-30 07:26:09] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: POST /api/auth/register | STATUS: pending
+[2026-01-30 07:26:09] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: POST /api/auth/register | Status: 422 | Time: 0.00s | STATUS: success
+[2026-01-30 07:26:12] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: POST /api/auth/login | STATUS: pending
+[2026-01-30 07:26:12] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: POST /api/auth/login | Status: 422 | Time: 0.00s | STATUS: success
+[2026-01-30 07:26:19] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: POST /api/auth/register | STATUS: pending
+[2026-01-30 07:26:19] INFO | ACTION: REGISTER_SUCCESS | USER: testuser | DETAILS: New user registered: testuser | STATUS: success
+[2026-01-30 07:26:19] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: POST /api/auth/register | Status: 200 | Time: 0.39s | STATUS: success
+[2026-01-30 07:26:25] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: POST /api/auth/register | STATUS: pending
+[2026-01-30 07:26:25] ERROR | ACTION: REGISTER_FAILED | USER: testuser | DETAILS: Username already exists | STATUS: error
+[2026-01-30 07:26:25] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: POST /api/auth/register | Status: 400 | Time: 0.00s | STATUS: success
+[2026-01-30 07:26:31] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: POST /api/auth/login | STATUS: pending
+[2026-01-30 07:26:31] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: POST /api/auth/login | Status: 422 | Time: 0.00s | STATUS: success
+[2026-01-30 07:26:41] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: POST /api/auth/login | STATUS: pending
+[2026-01-30 07:26:41] INFO | ACTION: LOGIN_SUCCESS | USER: testuser | DETAILS: User testuser logged in | STATUS: success
+[2026-01-30 07:26:41] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: POST /api/auth/login | Status: 200 | Time: 0.29s | STATUS: success
+[2026-01-30 07:26:49] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: POST /api/accounts | STATUS: pending
+[2026-01-30 07:26:50] INFO | ACTION: ACCOUNT_CREATE_REQUESTED | USER: testuser | DETAILS: Account request 'Acme Corporation' submitted for approval | STATUS: pending
+[2026-01-30 07:26:50] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: POST /api/accounts | Status: 202 | Time: 0.10s | STATUS: success
+[2026-01-30 07:26:51] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: GET /api/accounts | STATUS: pending
+[2026-01-30 07:26:51] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: GET /api/accounts | Status: 200 | Time: 0.02s | STATUS: success
+[2026-01-30 07:26:53] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: POST /api/contacts | STATUS: pending
+[2026-01-30 07:26:53] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: POST /api/contacts | Status: 201 | Time: 0.02s | STATUS: success
+[2026-01-30 07:26:55] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: POST /api/leads | STATUS: pending
+[2026-01-30 07:26:55] INFO | ACTION: CREATE_LEAD | USER: testuser | DETAILS: Lead created: Jane Smith (jane.smith@prospect.com) | STATUS: success
+[2026-01-30 07:26:55] INFO | ACTION: LEAD_ASSIGNED | USER: testuser | DETAILS: Lead 4 auto-assigned to user 2 | STATUS: success
+[2026-01-30 07:26:55] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: POST /api/leads | Status: 201 | Time: 0.02s | STATUS: success
+[2026-01-30 07:27:02] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: PUT /api/contacts/9 | STATUS: pending
+[2026-01-30 07:27:02] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: PUT /api/contacts/9 | Status: 200 | Time: 0.02s | STATUS: success
+[2026-01-30 07:27:02] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: GET /api/contacts/9 | STATUS: pending
+[2026-01-30 07:27:02] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: GET /api/contacts/9 | Status: 200 | Time: 0.03s | STATUS: success
+[2026-01-30 07:27:05] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: POST /api/opportunities | STATUS: pending
+[2026-01-30 07:27:05] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: POST /api/opportunities | Status: 201 | Time: 0.02s | STATUS: success
+[2026-01-30 07:27:05] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: PUT /api/opportunities/4 | STATUS: pending
+[2026-01-30 07:27:05] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: PUT /api/opportunities/4 | Status: 200 | Time: 0.01s | STATUS: success
+[2026-01-30 07:27:08] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: POST /api/cases | STATUS: pending
+[2026-01-30 07:27:08] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: POST /api/cases | Status: 201 | Time: 0.03s | STATUS: success
+[2026-01-30 07:27:08] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: PUT /api/cases/7 | STATUS: pending
+[2026-01-30 07:27:08] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: PUT /api/cases/7 | Status: 200 | Time: 0.01s | STATUS: success
+[2026-01-30 07:27:14] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: GET /api/leads | STATUS: pending
+[2026-01-30 07:27:14] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: GET /api/leads | Status: 200 | Time: 0.02s | STATUS: success
+[2026-01-30 07:27:14] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: PUT /api/leads/4 | STATUS: pending
+[2026-01-30 07:27:14] INFO | ACTION: UPDATE_LEAD | USER: testuser | DETAILS: Lead 4 updated | STATUS: success
+[2026-01-30 07:27:14] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: PUT /api/leads/4 | Status: 200 | Time: 0.01s | STATUS: success
+[2026-01-30 07:27:16] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: GET /api/dashboard/stats | STATUS: pending
+[2026-01-30 07:27:16] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: GET /api/dashboard/stats | Status: 200 | Time: 0.03s | STATUS: success
+[2026-01-30 07:27:16] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: GET /api/dashboard/search | STATUS: pending
+[2026-01-30 07:27:16] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: GET /api/dashboard/search | Status: 200 | Time: 0.01s | STATUS: success
+[2026-01-30 07:27:20] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: POST /api/contacts | STATUS: pending
+[2026-01-30 07:27:20] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: POST /api/contacts | Status: 201 | Time: 0.01s | STATUS: success
+[2026-01-30 07:27:20] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: DELETE /api/contacts/10 | STATUS: pending
+[2026-01-30 07:27:20] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: DELETE /api/contacts/10 | Status: 204 | Time: 0.02s | STATUS: success
+[2026-01-30 07:27:20] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: GET /api/contacts/10 | STATUS: pending
+[2026-01-30 07:27:20] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: GET /api/contacts/10 | Status: 404 | Time: 0.00s | STATUS: success
+[2026-01-30 07:27:29] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: POST /api/activities | STATUS: pending
+[2026-01-30 07:27:29] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: POST /api/activities | Status: 422 | Time: 0.00s | STATUS: success
+[2026-01-30 07:27:29] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: GET /api/activities | STATUS: pending
+[2026-01-30 07:27:29] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: GET /api/activities | Status: 405 | Time: 0.00s | STATUS: success
+[2026-01-30 07:27:34] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: POST /api/activities | STATUS: pending
+[2026-01-30 07:27:34] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: POST /api/activities | Status: 400 | Time: 0.00s | STATUS: success
+[2026-01-30 07:27:34] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: GET /api/activities | STATUS: pending
+[2026-01-30 07:27:34] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: GET /api/activities | Status: 405 | Time: 0.00s | STATUS: success
+[2026-01-30 07:27:43] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: POST /api/activities | STATUS: pending
+[2026-01-30 07:27:43] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: POST /api/activities | Status: 201 | Time: 0.01s | STATUS: success
+[2026-01-30 07:27:43] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: POST /api/cases/7/escalate | STATUS: pending
+[2026-01-30 07:27:43] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: POST /api/cases/7/escalate | Status: 200 | Time: 0.02s | STATUS: success
+[2026-01-30 07:27:43] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: GET /api/cases/7 | STATUS: pending
+[2026-01-30 07:27:43] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: GET /api/cases/7 | Status: 200 | Time: 0.01s | STATUS: success
+[2026-01-30 07:29:13] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /api/health | STATUS: pending
+[2026-01-30 07:29:13] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /api/health | Status: 200 | Time: 0.00s | STATUS: success
+[2026-01-30 07:29:13] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /api/sap-integration/health | STATUS: pending
+[2026-01-30 07:29:13] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /api/sap-integration/health | Status: 200 | Time: 0.00s | STATUS: success
+[2026-01-30 07:29:27] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /api/health | STATUS: pending
+[2026-01-30 07:29:27] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /api/health | Status: 200 | Time: 0.00s | STATUS: success
+[2026-01-30 07:29:27] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /api/sap-integration/health | STATUS: pending
+[2026-01-30 07:29:27] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /api/sap-integration/health | Status: 200 | Time: 0.00s | STATUS: success
+[2026-01-30 07:29:31] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: GET /api/contacts | STATUS: pending
+[2026-01-30 07:29:31] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: GET /api/contacts | Status: 200 | Time: 0.02s | STATUS: success
+[2026-01-30 07:29:31] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: GET /api/dashboard/stats | STATUS: pending
+[2026-01-30 07:29:31] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: GET /api/dashboard/stats | Status: 200 | Time: 0.01s | STATUS: success
+[2026-01-30 07:29:31] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: GET /api/dashboard/search | STATUS: pending
+[2026-01-30 07:29:31] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: GET /api/dashboard/search | Status: 200 | Time: 0.01s | STATUS: success
+[2026-01-30 07:29:33] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: POST /api/sap-integration/cases/sync | STATUS: pending
+[2026-01-30 07:29:33] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: POST /api/sap-integration/cases/sync | Status: 200 | Time: 0.41s | STATUS: success
+[2026-01-30 07:29:34] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: GET /api/sap-integration/cases/7/sync-status | STATUS: pending
+[2026-01-30 07:29:34] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: GET /api/sap-integration/cases/7/sync-status | Status: 200 | Time: 0.01s | STATUS: success
+[2026-01-30 07:29:41] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: GET /api/dashboard/search | STATUS: pending
+[2026-01-30 07:29:41] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: GET /api/dashboard/search | Status: 200 | Time: 0.01s | STATUS: success
+[2026-01-30 07:29:41] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: POST /api/cases | STATUS: pending
+[2026-01-30 07:29:41] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: POST /api/cases | Status: 201 | Time: 0.02s | STATUS: success
+[2026-01-30 07:29:46] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: POST /api/sap-integration/cases/sync-batch | STATUS: pending
+[2026-01-30 07:29:48] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: POST /api/sap-integration/cases/sync-batch | Status: 200 | Time: 1.19s | STATUS: success
+[2026-01-30 07:29:48] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: GET /api/sap-integration/logs | STATUS: pending
+[2026-01-30 07:29:48] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: GET /api/sap-integration/logs | Status: 404 | Time: 0.00s | STATUS: success
+[2026-01-30 07:29:49] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: GET /api/cases | STATUS: pending
+[2026-01-30 07:29:49] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: GET /api/cases | Status: 200 | Time: 0.02s | STATUS: success
+[2026-01-30 07:29:49] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: GET /api/opportunities | STATUS: pending
+[2026-01-30 07:29:49] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: GET /api/opportunities | Status: 200 | Time: 0.01s | STATUS: success
+[2026-01-30 07:29:57] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: GET /api/leads | STATUS: pending
+[2026-01-30 07:29:57] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: GET /api/leads | Status: 200 | Time: 0.01s | STATUS: success
+[2026-01-30 07:29:57] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: GET /api/accounts | STATUS: pending
+[2026-01-30 07:29:57] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: GET /api/accounts | Status: 200 | Time: 0.01s | STATUS: success
+[2026-01-30 07:30:00] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: GET /api/auth/me | STATUS: pending
+[2026-01-30 07:30:00] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: GET /api/auth/me | Status: 200 | Time: 0.00s | STATUS: success
+[2026-01-30 07:30:00] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: GET /api/auth/users | STATUS: pending
+[2026-01-30 07:30:00] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: GET /api/auth/users | Status: 200 | Time: 0.01s | STATUS: success
+[2026-01-30 08:11:10] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /api/auth/me | STATUS: pending
+[2026-01-30 08:11:10] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /api/auth/me | Status: 401 | Time: 0.01s | STATUS: success
+[2026-01-30 08:11:10] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /api/auth/me | STATUS: pending
+[2026-01-30 08:11:10] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /api/auth/me | STATUS: pending
+[2026-01-30 08:11:10] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /api/auth/me | Status: 401 | Time: 0.00s | STATUS: success
+[2026-01-30 08:11:10] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /api/auth/me | Status: 401 | Time: 0.00s | STATUS: success
+[2026-01-30 08:11:10] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /api/auth/me | STATUS: pending
+[2026-01-30 08:11:10] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /api/auth/me | STATUS: pending
+[2026-01-30 08:11:10] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /api/auth/me | Status: 401 | Time: 0.01s | STATUS: success
+[2026-01-30 08:11:10] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /api/auth/me | Status: 401 | Time: 0.01s | STATUS: success
+[2026-01-30 08:11:10] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /api/auth/me | STATUS: pending
+[2026-01-30 08:11:10] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /api/auth/me | Status: 401 | Time: 0.00s | STATUS: success
+[2026-01-30 08:11:10] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /api/auth/me | STATUS: pending
+[2026-01-30 08:11:10] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /api/auth/me | Status: 401 | Time: 0.00s | STATUS: success
+[2026-01-30 08:11:10] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /api/auth/me | STATUS: pending
+[2026-01-30 08:11:10] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /api/auth/me | Status: 401 | Time: 0.00s | STATUS: success
+[2026-01-30 08:11:12] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /api/auth/me | STATUS: pending
+[2026-01-30 08:11:12] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /api/auth/me | Status: 401 | Time: 0.00s | STATUS: success
+[2026-01-30 08:11:27] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: POST /api/auth/login | STATUS: pending
+[2026-01-30 08:11:27] INFO | ACTION: LOGIN_SUCCESS | USER: stalin | DETAILS: User stalin logged in | STATUS: success
+[2026-01-30 08:11:27] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: POST /api/auth/login | Status: 200 | Time: 0.29s | STATUS: success
+[2026-01-30 08:11:28] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: GET /api/auth/me | STATUS: pending
+[2026-01-30 08:11:28] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: GET /api/auth/me | Status: 200 | Time: 0.00s | STATUS: success
+[2026-01-30 08:11:29] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: GET /api/leads | STATUS: pending
+[2026-01-30 08:11:29] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: GET /api/leads | Status: 200 | Time: 0.01s | STATUS: success
+[2026-01-30 08:11:30] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: GET /api/cases/by-priority | STATUS: pending
+[2026-01-30 08:11:30] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: GET /api/cases/by-priority | Status: 200 | Time: 0.01s | STATUS: success
+[2026-01-30 08:11:30] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: GET /api/contacts | STATUS: pending
+[2026-01-30 08:11:30] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: GET /api/leads | STATUS: pending
+[2026-01-30 08:11:30] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: GET /api/opportunities | STATUS: pending
+[2026-01-30 08:11:30] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: GET /api/contacts | Status: 200 | Time: 0.01s | STATUS: success
+[2026-01-30 08:11:30] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: GET /api/contacts | STATUS: pending
+[2026-01-30 08:11:30] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: GET /api/cases/by-priority | STATUS: pending
+[2026-01-30 08:11:30] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: GET /api/leads | Status: 200 | Time: 0.02s | STATUS: success
+[2026-01-30 08:11:30] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: GET /api/opportunities | Status: 200 | Time: 0.02s | STATUS: success
+[2026-01-30 08:11:30] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: GET /api/contacts | Status: 200 | Time: 0.02s | STATUS: success
+[2026-01-30 08:11:30] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: GET /api/cases/by-priority | Status: 200 | Time: 0.02s | STATUS: success
+[2026-01-30 08:11:30] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: GET /api/opportunities | STATUS: pending
+[2026-01-30 08:11:30] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: GET /api/opportunities | Status: 200 | Time: 0.00s | STATUS: success
+[2026-01-30 08:11:30] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: GET /api/dashboard/recent-records | STATUS: pending
+[2026-01-30 08:11:30] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: GET /api/dashboard/recent-records | Status: 200 | Time: 0.00s | STATUS: success
+[2026-01-30 08:11:30] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: GET /api/dashboard/recent-records | STATUS: pending
+[2026-01-30 08:11:30] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: GET /api/dashboard/recent-records | Status: 200 | Time: 0.00s | STATUS: success
+[2026-01-30 08:12:08] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: GET /api/accounts | STATUS: pending
+[2026-01-30 08:12:08] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: GET /api/accounts | Status: 200 | Time: 0.01s | STATUS: success
+[2026-01-30 08:12:08] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: GET /api/accounts | STATUS: pending
+[2026-01-30 08:12:08] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: GET /api/accounts | Status: 200 | Time: 0.01s | STATUS: success
+[2026-01-30 08:12:18] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: GET /api/leads | STATUS: pending
+[2026-01-30 08:12:18] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: GET /api/leads | Status: 200 | Time: 0.01s | STATUS: success
+[2026-01-30 08:12:18] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: GET /api/leads | STATUS: pending
+[2026-01-30 08:12:18] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: GET /api/leads | Status: 200 | Time: 0.01s | STATUS: success
+[2026-01-30 08:12:18] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: GET /api/cases | STATUS: pending
+[2026-01-30 08:12:18] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: GET /api/cases | STATUS: pending
+[2026-01-30 08:12:18] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: GET /api/cases | Status: 200 | Time: 0.01s | STATUS: success
+[2026-01-30 08:12:18] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: GET /api/cases | Status: 200 | Time: 0.01s | STATUS: success
+[2026-01-30 08:12:20] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: GET /api/accounts | STATUS: pending
+[2026-01-30 08:12:20] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: GET /api/accounts | STATUS: pending
+[2026-01-30 08:12:20] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: GET /api/accounts | Status: 200 | Time: 0.17s | STATUS: success
+[2026-01-30 08:12:20] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: GET /api/accounts | Status: 200 | Time: 0.17s | STATUS: success
+[2026-01-30 08:12:21] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: GET /api/leads | STATUS: pending
+[2026-01-30 08:12:21] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: GET /api/leads | STATUS: pending
+[2026-01-30 08:12:21] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: GET /api/leads | Status: 200 | Time: 0.01s | STATUS: success
+[2026-01-30 08:12:21] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: GET /api/leads | Status: 200 | Time: 0.01s | STATUS: success
+[2026-01-30 08:12:33] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: GET /api/accounts | STATUS: pending
+[2026-01-30 08:12:33] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: GET /api/accounts | Status: 200 | Time: 0.01s | STATUS: success
+[2026-01-30 08:12:33] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: GET /api/accounts | STATUS: pending
+[2026-01-30 08:12:33] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: GET /api/accounts | Status: 200 | Time: 0.01s | STATUS: success
+[2026-01-30 08:12:36] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: GET /api/auth/users | STATUS: pending
+[2026-01-30 08:12:36] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: GET /api/auth/users | Status: 200 | Time: 0.00s | STATUS: success
+[2026-01-30 08:13:56] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: POST /api/accounts | STATUS: pending
+[2026-01-30 08:13:56] INFO | ACTION: ACCOUNT_CREATE_REQUESTED | USER: stalin | DETAILS: Account request 'AAA' submitted for approval | STATUS: pending
+[2026-01-30 08:13:56] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: POST /api/accounts | Status: 202 | Time: 0.05s | STATUS: success
+[2026-01-30 08:13:56] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: GET /api/accounts | STATUS: pending
+[2026-01-30 08:13:56] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: GET /api/accounts | Status: 200 | Time: 0.01s | STATUS: success
+[2026-01-30 08:14:04] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: GET /api/accounts | STATUS: pending
+[2026-01-30 08:14:04] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: GET /api/accounts | Status: 200 | Time: 0.01s | STATUS: success
+[2026-01-30 08:14:14] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: GET /api/leads | STATUS: pending
+[2026-01-30 08:14:14] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: GET /api/leads | Status: 200 | Time: 0.01s | STATUS: success
+[2026-01-30 08:14:14] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: GET /api/leads | STATUS: pending
+[2026-01-30 08:14:14] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: GET /api/leads | Status: 200 | Time: 0.01s | STATUS: success
+[2026-01-30 08:14:15] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: GET /api/accounts | STATUS: pending
+[2026-01-30 08:14:15] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: GET /api/accounts | Status: 200 | Time: 0.01s | STATUS: success
+[2026-01-30 08:14:15] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: GET /api/accounts | STATUS: pending
+[2026-01-30 08:14:15] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: GET /api/accounts | Status: 200 | Time: 0.01s | STATUS: success
+[2026-01-30 08:17:56] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: GET /api/auth/me | STATUS: pending
+[2026-01-30 08:17:56] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: GET /api/auth/me | Status: 200 | Time: 0.00s | STATUS: success
+[2026-01-30 08:17:56] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: GET /api/auth/me | STATUS: pending
+[2026-01-30 08:17:56] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: GET /api/accounts | STATUS: pending
+[2026-01-30 08:17:56] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: GET /api/auth/me | Status: 200 | Time: 0.01s | STATUS: success
+[2026-01-30 08:17:56] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: GET /api/accounts | Status: 200 | Time: 0.01s | STATUS: success
+[2026-01-30 08:17:56] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: GET /api/accounts | STATUS: pending
+[2026-01-30 08:17:56] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: GET /api/accounts | Status: 200 | Time: 0.01s | STATUS: success
+[2026-01-30 08:19:22] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: GET /api/auth/me | STATUS: pending
+[2026-01-30 08:19:22] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: GET /api/auth/me | Status: 200 | Time: 0.00s | STATUS: success
+[2026-01-30 08:19:22] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: GET /api/auth/me | STATUS: pending
+[2026-01-30 08:19:22] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: GET /api/auth/me | Status: 200 | Time: 0.00s | STATUS: success
+[2026-01-30 08:19:22] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: GET /api/accounts | STATUS: pending
+[2026-01-30 08:19:22] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: GET /api/accounts | Status: 200 | Time: 0.01s | STATUS: success
+[2026-01-30 08:19:23] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: GET /api/accounts | STATUS: pending
+[2026-01-30 08:19:23] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: GET /api/accounts | Status: 200 | Time: 0.01s | STATUS: success
+[2026-01-30 08:19:28] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: GET /api/auth/me | STATUS: pending
+[2026-01-30 08:19:28] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: GET /api/auth/me | Status: 200 | Time: 0.00s | STATUS: success
+[2026-01-30 08:19:28] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: GET /api/auth/me | STATUS: pending
+[2026-01-30 08:19:28] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: GET /api/auth/me | Status: 200 | Time: 0.00s | STATUS: success
+[2026-01-30 08:19:44] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: POST /api/auth/login | STATUS: pending
+[2026-01-30 08:19:45] INFO | ACTION: LOGIN_SUCCESS | USER: stalin | DETAILS: User stalin logged in | STATUS: success
+[2026-01-30 08:19:45] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: POST /api/auth/login | Status: 200 | Time: 0.28s | STATUS: success
+[2026-01-30 08:19:45] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: GET /api/auth/me | STATUS: pending
+[2026-01-30 08:19:45] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: GET /api/auth/me | Status: 200 | Time: 0.00s | STATUS: success
+[2026-01-30 08:19:46] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: GET /api/leads | STATUS: pending
+[2026-01-30 08:19:46] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: GET /api/leads | Status: 200 | Time: 0.01s | STATUS: success
+[2026-01-30 08:19:46] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: GET /api/dashboard/recent-records | STATUS: pending
+[2026-01-30 08:19:46] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: GET /api/dashboard/recent-records | Status: 200 | Time: 0.00s | STATUS: success
+[2026-01-30 08:19:46] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: GET /api/cases/by-priority | STATUS: pending
+[2026-01-30 08:19:46] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: GET /api/cases/by-priority | Status: 200 | Time: 0.01s | STATUS: success
+[2026-01-30 08:19:46] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: GET /api/leads | STATUS: pending
+[2026-01-30 08:19:46] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: GET /api/leads | Status: 200 | Time: 0.01s | STATUS: success
+[2026-01-30 08:19:46] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: GET /api/opportunities | STATUS: pending
+[2026-01-30 08:19:46] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: GET /api/opportunities | STATUS: pending
+[2026-01-30 08:19:46] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: GET /api/cases/by-priority | STATUS: pending
+[2026-01-30 08:19:47] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: GET /api/opportunities | Status: 200 | Time: 0.01s | STATUS: success
+[2026-01-30 08:19:47] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: GET /api/opportunities | Status: 200 | Time: 0.01s | STATUS: success
+[2026-01-30 08:19:47] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: GET /api/cases/by-priority | Status: 200 | Time: 0.01s | STATUS: success
+[2026-01-30 08:19:47] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: GET /api/contacts | STATUS: pending
+[2026-01-30 08:19:47] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: GET /api/contacts | Status: 200 | Time: 0.01s | STATUS: success
+[2026-01-30 08:19:47] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: GET /api/dashboard/recent-records | STATUS: pending
+[2026-01-30 08:19:47] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: GET /api/dashboard/recent-records | Status: 200 | Time: 0.00s | STATUS: success
+[2026-01-30 08:19:47] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: GET /api/contacts | STATUS: pending
+[2026-01-30 08:19:47] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: GET /api/contacts | Status: 200 | Time: 0.01s | STATUS: success
+[2026-01-30 08:19:50] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: GET /api/accounts | STATUS: pending
+[2026-01-30 08:19:50] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: GET /api/accounts | STATUS: pending
+[2026-01-30 08:19:50] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: GET /api/accounts | Status: 200 | Time: 0.01s | STATUS: success
+[2026-01-30 08:19:50] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: GET /api/accounts | Status: 200 | Time: 0.01s | STATUS: success
+[2026-01-30 08:19:59] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: POST /api/logs/action | STATUS: pending
+[2026-01-30 08:19:59] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: POST /api/logs/action | Status: 401 | Time: 0.00s | STATUS: success
+[2026-01-30 08:20:11] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: POST /api/auth/login | STATUS: pending
+[2026-01-30 08:20:12] INFO | ACTION: LOGIN_SUCCESS | USER: admin | DETAILS: User admin logged in | STATUS: success
+[2026-01-30 08:20:12] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: POST /api/auth/login | Status: 200 | Time: 0.28s | STATUS: success
+[2026-01-30 08:20:12] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: GET /api/auth/me | STATUS: pending
+[2026-01-30 08:20:12] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: GET /api/auth/me | Status: 200 | Time: 0.00s | STATUS: success
+[2026-01-30 08:20:12] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: GET /api/dashboard/recent-records | STATUS: pending
+[2026-01-30 08:20:12] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: GET /api/dashboard/recent-records | Status: 200 | Time: 0.00s | STATUS: success
+[2026-01-30 08:20:13] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: GET /api/dashboard/recent-records | STATUS: pending
+[2026-01-30 08:20:13] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: GET /api/dashboard/recent-records | Status: 200 | Time: 0.00s | STATUS: success
+[2026-01-30 08:20:13] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: GET /api/contacts | STATUS: pending
+[2026-01-30 08:20:13] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: GET /api/cases/by-priority | STATUS: pending
+[2026-01-30 08:20:13] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: GET /api/contacts | Status: 200 | Time: 0.01s | STATUS: success
+[2026-01-30 08:20:13] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: GET /api/cases/by-priority | Status: 200 | Time: 0.01s | STATUS: success
+[2026-01-30 08:20:13] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: GET /api/leads | STATUS: pending
+[2026-01-30 08:20:13] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: GET /api/leads | STATUS: pending
+[2026-01-30 08:20:13] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: GET /api/leads | Status: 200 | Time: 0.01s | STATUS: success
+[2026-01-30 08:20:13] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: GET /api/leads | Status: 200 | Time: 0.01s | STATUS: success
+[2026-01-30 08:20:14] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: GET /api/opportunities | STATUS: pending
+[2026-01-30 08:20:14] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: GET /api/contacts | STATUS: pending
+[2026-01-30 08:20:14] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: GET /api/opportunities | Status: 200 | Time: 0.01s | STATUS: success
+[2026-01-30 08:20:14] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: GET /api/contacts | Status: 200 | Time: 0.01s | STATUS: success
+[2026-01-30 08:20:14] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: GET /api/opportunities | STATUS: pending
+[2026-01-30 08:20:14] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: GET /api/cases/by-priority | STATUS: pending
+[2026-01-30 08:20:14] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: GET /api/opportunities | Status: 200 | Time: 0.01s | STATUS: success
+[2026-01-30 08:20:14] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: GET /api/cases/by-priority | Status: 200 | Time: 0.01s | STATUS: success
+[2026-01-30 08:20:15] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: GET /api/accounts | STATUS: pending
+[2026-01-30 08:20:15] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: GET /api/accounts | STATUS: pending
+[2026-01-30 08:20:15] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: GET /api/accounts | Status: 200 | Time: 0.01s | STATUS: success
+[2026-01-30 08:20:15] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: GET /api/accounts | Status: 200 | Time: 0.01s | STATUS: success
+[2026-01-30 08:20:29] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: GET /api/auth/users | STATUS: pending
+[2026-01-30 08:20:29] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: GET /api/auth/users | Status: 200 | Time: 0.00s | STATUS: success
+[2026-01-30 08:21:16] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: POST /api/accounts | STATUS: pending
+[2026-01-30 08:21:16] INFO | ACTION: ACCOUNT_REQUEST_SENT_TO_MULESOFT | USER: admin | DETAILS: Account request 'TTT' sent to MuleSoft (request 6) | STATUS: pending
+[2026-01-30 08:21:16] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: POST /api/accounts | Status: 202 | Time: 0.07s | STATUS: success
+[2026-01-30 08:21:17] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: GET /api/accounts | STATUS: pending
+[2026-01-30 08:21:17] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: GET /api/accounts | Status: 200 | Time: 0.01s | STATUS: success
+[2026-01-30 08:26:08] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: GET /api/auth/me | STATUS: pending
+[2026-01-30 08:26:08] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: GET /api/auth/me | Status: 200 | Time: 0.01s | STATUS: success
+[2026-01-30 08:26:08] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: GET /api/auth/me | STATUS: pending
+[2026-01-30 08:26:08] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: GET /api/auth/me | Status: 200 | Time: 0.00s | STATUS: success
+[2026-01-30 08:26:22] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: POST /api/auth/login | STATUS: pending
+[2026-01-30 08:26:23] INFO | ACTION: LOGIN_SUCCESS | USER: stalin | DETAILS: User stalin logged in | STATUS: success
+[2026-01-30 08:26:23] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: POST /api/auth/login | Status: 200 | Time: 0.29s | STATUS: success
+[2026-01-30 08:26:24] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: GET /api/auth/me | STATUS: pending
+[2026-01-30 08:26:24] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: GET /api/auth/me | Status: 200 | Time: 0.00s | STATUS: success
+[2026-01-30 08:26:25] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: GET /api/leads | STATUS: pending
+[2026-01-30 08:26:25] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: GET /api/leads | Status: 200 | Time: 0.01s | STATUS: success
+[2026-01-30 08:26:25] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: GET /api/opportunities | STATUS: pending
+[2026-01-30 08:26:25] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: GET /api/opportunities | Status: 200 | Time: 0.01s | STATUS: success
+[2026-01-30 08:26:25] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: GET /api/dashboard/recent-records | STATUS: pending
+[2026-01-30 08:26:25] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: GET /api/leads | STATUS: pending
+[2026-01-30 08:26:25] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: GET /api/opportunities | STATUS: pending
+[2026-01-30 08:26:25] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: GET /api/dashboard/recent-records | Status: 200 | Time: 0.01s | STATUS: success
+[2026-01-30 08:26:25] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: GET /api/leads | Status: 200 | Time: 0.01s | STATUS: success
+[2026-01-30 08:26:25] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: GET /api/opportunities | Status: 200 | Time: 0.01s | STATUS: success
+[2026-01-30 08:26:25] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: GET /api/contacts | STATUS: pending
+[2026-01-30 08:26:25] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: GET /api/cases/by-priority | STATUS: pending
+[2026-01-30 08:26:25] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: GET /api/contacts | STATUS: pending
+[2026-01-30 08:26:25] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: GET /api/contacts | Status: 200 | Time: 0.01s | STATUS: success
+[2026-01-30 08:26:25] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: GET /api/cases/by-priority | Status: 200 | Time: 0.01s | STATUS: success
+[2026-01-30 08:26:25] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: GET /api/contacts | Status: 200 | Time: 0.01s | STATUS: success
+[2026-01-30 08:26:26] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: GET /api/dashboard/recent-records | STATUS: pending
+[2026-01-30 08:26:26] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: GET /api/cases/by-priority | STATUS: pending
+[2026-01-30 08:26:26] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: GET /api/dashboard/recent-records | Status: 200 | Time: 0.01s | STATUS: success
+[2026-01-30 08:26:26] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: GET /api/cases/by-priority | Status: 200 | Time: 0.00s | STATUS: success
+[2026-01-30 08:26:28] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: GET /api/leads | STATUS: pending
+[2026-01-30 08:26:28] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: GET /api/leads | Status: 200 | Time: 0.01s | STATUS: success
+[2026-01-30 08:26:29] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: GET /api/leads | STATUS: pending
+[2026-01-30 08:26:29] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: GET /api/leads | Status: 200 | Time: 0.00s | STATUS: success
+[2026-01-30 08:26:29] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: GET /api/accounts | STATUS: pending
+[2026-01-30 08:26:29] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: GET /api/accounts | STATUS: pending
+[2026-01-30 08:26:29] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: GET /api/accounts | Status: 200 | Time: 0.01s | STATUS: success
+[2026-01-30 08:26:29] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: GET /api/accounts | Status: 200 | Time: 0.01s | STATUS: success
+[2026-01-30 08:26:40] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: GET /api/service/quotations | STATUS: pending
+[2026-01-30 08:26:40] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: GET /api/service/quotations | Status: 200 | Time: 0.01s | STATUS: success
+[2026-01-30 08:26:41] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: GET /api/service/quotations | STATUS: pending
+[2026-01-30 08:26:41] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: GET /api/service/quotations | Status: 200 | Time: 0.00s | STATUS: success
+[2026-01-30 08:26:42] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: GET /api/service/accounts | STATUS: pending
+[2026-01-30 08:26:42] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: GET /api/service/accounts | Status: 200 | Time: 0.01s | STATUS: success
+[2026-01-30 08:26:42] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: GET /api/service/invoices | STATUS: pending
+[2026-01-30 08:26:42] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: GET /api/service/invoices | Status: 200 | Time: 0.01s | STATUS: success
+[2026-01-30 08:26:42] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: GET /api/service/warranty-extensions | STATUS: pending
+[2026-01-30 08:26:42] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: GET /api/service/warranty-extensions | Status: 200 | Time: 0.01s | STATUS: success
+[2026-01-30 08:26:43] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: GET /api/service/slas | STATUS: pending
+[2026-01-30 08:26:43] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: GET /api/service/slas | Status: 200 | Time: 0.01s | STATUS: success
+[2026-01-30 08:26:44] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: GET /api/service/quotations | STATUS: pending
+[2026-01-30 08:26:44] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: GET /api/service/quotations | Status: 200 | Time: 0.00s | STATUS: success
+[2026-01-30 08:26:45] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: GET /api/leads | STATUS: pending
+[2026-01-30 08:26:45] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: GET /api/leads | STATUS: pending
+[2026-01-30 08:26:45] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: GET /api/leads | Status: 200 | Time: 0.01s | STATUS: success
+[2026-01-30 08:26:45] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: GET /api/leads | Status: 200 | Time: 0.01s | STATUS: success
+[2026-01-30 08:26:47] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: GET /api/accounts | STATUS: pending
+[2026-01-30 08:26:47] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: GET /api/accounts | STATUS: pending
+[2026-01-30 08:26:47] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: GET /api/accounts | Status: 200 | Time: 0.01s | STATUS: success
+[2026-01-30 08:26:47] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: GET /api/accounts | Status: 200 | Time: 0.01s | STATUS: success
+[2026-01-30 08:28:30] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: POST /api/auth/login | STATUS: pending
+[2026-01-30 08:28:30] INFO | ACTION: LOGIN_SUCCESS | USER: stalin | DETAILS: User stalin logged in | STATUS: success
+[2026-01-30 08:28:30] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: POST /api/auth/login | Status: 200 | Time: 0.29s | STATUS: success
+[2026-01-30 08:28:31] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: GET /api/auth/me | STATUS: pending
+[2026-01-30 08:28:31] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: GET /api/auth/me | Status: 200 | Time: 0.00s | STATUS: success
+[2026-01-30 08:28:31] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: GET /api/leads | STATUS: pending
+[2026-01-30 08:28:31] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: GET /api/leads | Status: 200 | Time: 0.01s | STATUS: success
+[2026-01-30 08:28:31] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: GET /api/opportunities | STATUS: pending
+[2026-01-30 08:28:31] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: GET /api/opportunities | Status: 200 | Time: 0.01s | STATUS: success
+[2026-01-30 08:28:32] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: GET /api/contacts | STATUS: pending
+[2026-01-30 08:28:32] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: GET /api/contacts | Status: 200 | Time: 0.00s | STATUS: success
+[2026-01-30 08:28:32] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: GET /api/opportunities | STATUS: pending
+[2026-01-30 08:28:32] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: GET /api/contacts | STATUS: pending
+[2026-01-30 08:28:32] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: GET /api/cases/by-priority | STATUS: pending
+[2026-01-30 08:28:32] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: GET /api/opportunities | Status: 200 | Time: 0.01s | STATUS: success
+[2026-01-30 08:28:32] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: GET /api/contacts | Status: 200 | Time: 0.01s | STATUS: success
+[2026-01-30 08:28:32] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: GET /api/cases/by-priority | Status: 200 | Time: 0.01s | STATUS: success
+[2026-01-30 08:28:32] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: GET /api/dashboard/recent-records | STATUS: pending
+[2026-01-30 08:28:32] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: GET /api/leads | STATUS: pending
+[2026-01-30 08:28:32] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: GET /api/dashboard/recent-records | Status: 200 | Time: 0.01s | STATUS: success
+[2026-01-30 08:28:32] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: GET /api/leads | Status: 200 | Time: 0.01s | STATUS: success
+[2026-01-30 08:28:32] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: GET /api/cases/by-priority | STATUS: pending
+[2026-01-30 08:28:32] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: GET /api/cases/by-priority | Status: 200 | Time: 0.00s | STATUS: success
+[2026-01-30 08:28:32] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: GET /api/dashboard/recent-records | STATUS: pending
+[2026-01-30 08:28:32] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: GET /api/dashboard/recent-records | Status: 200 | Time: 0.00s | STATUS: success
+[2026-01-30 08:28:35] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: GET /api/accounts | STATUS: pending
+[2026-01-30 08:28:35] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: GET /api/accounts | STATUS: pending
+[2026-01-30 08:28:35] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: GET /api/accounts | Status: 200 | Time: 0.01s | STATUS: success
+[2026-01-30 08:28:35] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: GET /api/accounts | Status: 200 | Time: 0.01s | STATUS: success
+[2026-01-30 08:30:28] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: GET /api/accounts | STATUS: pending
+[2026-01-30 08:30:28] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: GET /api/accounts | Status: 200 | Time: 0.01s | STATUS: success
+[2026-01-30 21:30:39] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET / | STATUS: pending
+[2026-01-30 21:30:39] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET / | STATUS: pending
+[2026-01-30 21:30:39] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET / | Status: 200 | Time: 0.01s | STATUS: success
+[2026-01-30 21:30:39] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET / | STATUS: pending
+[2026-01-30 21:30:39] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /struts2-showcase/struts/utils.js | STATUS: pending
+[2026-01-30 21:30:39] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET / | Status: 200 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:39] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET / | STATUS: pending
+[2026-01-30 21:30:39] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET / | Status: 200 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:39] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /struts2-showcase/struts/utils.js | Status: 404 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:39] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET / | Status: 200 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:40] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /js/ | STATUS: pending
+[2026-01-30 21:30:40] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /js/ | Status: 404 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:41] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /:undefined | STATUS: pending
+[2026-01-30 21:30:41] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /:undefined | Status: 404 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:41] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /:undefined | STATUS: pending
+[2026-01-30 21:30:41] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /:undefined | Status: 404 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:41] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /struts2-showcase/struts/tooltip.gif | STATUS: pending
+[2026-01-30 21:30:41] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /:undefined | STATUS: pending
+[2026-01-30 21:30:41] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /struts2-showcase/struts/tooltip.gif | Status: 404 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:41] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /:undefined | Status: 404 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:41] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /:undefined | STATUS: pending
+[2026-01-30 21:30:41] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /:undefined | Status: 404 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:42] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET / | STATUS: pending
+[2026-01-30 21:30:42] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET / | STATUS: pending
+[2026-01-30 21:30:42] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /struts2-showcase/struts/domtt.css | STATUS: pending
+[2026-01-30 21:30:42] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET / | Status: 200 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:42] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET / | Status: 200 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:42] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /struts2-showcase/struts/domtt.css | Status: 404 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:42] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET / | STATUS: pending
+[2026-01-30 21:30:42] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET / | Status: 200 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:42] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET / | STATUS: pending
+[2026-01-30 21:30:42] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET / | Status: 200 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:42] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /struts2-showcase/struts/domTT.js | STATUS: pending
+[2026-01-30 21:30:42] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /:undefined | STATUS: pending
+[2026-01-30 21:30:42] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /:undefined | STATUS: pending
+[2026-01-30 21:30:42] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /struts2-showcase/struts/domTT.js | Status: 404 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:42] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /:undefined | Status: 404 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:42] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /:undefined | Status: 404 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:42] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /:undefined | STATUS: pending
+[2026-01-30 21:30:42] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /:undefined | STATUS: pending
+[2026-01-30 21:30:42] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /:undefined | Status: 404 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:42] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /:undefined | Status: 404 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:42] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET / | STATUS: pending
+[2026-01-30 21:30:42] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET / | Status: 200 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:42] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET / | STATUS: pending
+[2026-01-30 21:30:42] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /struts2-showcase/struts/inputtransfersselect.js | STATUS: pending
+[2026-01-30 21:30:42] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET / | STATUS: pending
+[2026-01-30 21:30:42] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET / | STATUS: pending
+[2026-01-30 21:30:42] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET / | Status: 200 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:42] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /struts2-showcase/struts/inputtransfersselect.js | Status: 404 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:42] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET / | Status: 200 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:42] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET / | Status: 200 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:42] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /:undefined | STATUS: pending
+[2026-01-30 21:30:42] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /struts2-showcase/struts/optiontransferselect.js | STATUS: pending
+[2026-01-30 21:30:42] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /:undefined | Status: 404 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:42] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /:undefined | STATUS: pending
+[2026-01-30 21:30:42] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /struts2-showcase/struts/optiontransferselect.js | Status: 404 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:42] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /:undefined | Status: 404 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:42] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /:undefined | STATUS: pending
+[2026-01-30 21:30:42] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /:undefined | Status: 404 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:42] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /:undefined | STATUS: pending
+[2026-01-30 21:30:42] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /:undefined | Status: 404 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:42] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET / | STATUS: pending
+[2026-01-30 21:30:42] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /struts2-showcase | STATUS: pending
+[2026-01-30 21:30:42] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET / | STATUS: pending
+[2026-01-30 21:30:42] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET / | Status: 200 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:42] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /struts2-showcase | Status: 404 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:42] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET / | STATUS: pending
+[2026-01-30 21:30:42] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET / | Status: 200 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:42] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET / | Status: 200 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:42] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET / | STATUS: pending
+[2026-01-30 21:30:42] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET / | Status: 200 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:42] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /index.action/struts/utils.js | STATUS: pending
+[2026-01-30 21:30:42] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /index.action/struts/utils.js | Status: 404 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:42] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /:undefined | STATUS: pending
+[2026-01-30 21:30:42] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /:undefined | Status: 404 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:42] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /:undefined | STATUS: pending
+[2026-01-30 21:30:42] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /:undefined | Status: 404 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:42] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /:undefined | STATUS: pending
+[2026-01-30 21:30:42] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: POST /struts2-showcase/token/transfer4.action | STATUS: pending
+[2026-01-30 21:30:42] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /:undefined | Status: 404 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:42] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: POST /struts2-showcase/token/transfer4.action | Status: 404 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:42] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET / | STATUS: pending
+[2026-01-30 21:30:42] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET / | Status: 200 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:42] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET / | STATUS: pending
+[2026-01-30 21:30:42] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /:undefined | STATUS: pending
+[2026-01-30 21:30:42] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET / | STATUS: pending
+[2026-01-30 21:30:42] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET / | Status: 200 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:42] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /:undefined | Status: 404 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:42] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET / | Status: 200 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:42] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET / | STATUS: pending
+[2026-01-30 21:30:42] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /:undefined | STATUS: pending
+[2026-01-30 21:30:42] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /:undefined | STATUS: pending
+[2026-01-30 21:30:42] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET / | Status: 200 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:42] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /struts2-showcase/${jndi:dns://MDEDiscovery34a203c784ApacheStruts2-8000} | STATUS: pending
+[2026-01-30 21:30:42] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /:undefined | Status: 404 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:42] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /:undefined | Status: 404 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:42] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /struts2-showcase/${jndi:dns://MDEDiscovery34a203c784ApacheStruts2-8000} | Status: 404 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:42] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /:undefined | STATUS: pending
+[2026-01-30 21:30:42] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /:undefined | Status: 404 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:42] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /:undefined | STATUS: pending
+[2026-01-30 21:30:42] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: POST /struts2-showcase/token/transfer4.action | STATUS: pending
+[2026-01-30 21:30:42] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /:undefined | Status: 404 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:42] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: POST /struts2-showcase/token/transfer4.action | Status: 404 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:42] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET / | STATUS: pending
+[2026-01-30 21:30:42] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET / | Status: 200 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:42] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET / | STATUS: pending
+[2026-01-30 21:30:42] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET / | STATUS: pending
+[2026-01-30 21:30:42] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET / | STATUS: pending
+[2026-01-30 21:30:42] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET / | Status: 200 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:42] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET / | Status: 200 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:42] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET / | Status: 200 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:42] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: POST /analytics/telemetry/ph/api/hyper/send | STATUS: pending
+[2026-01-30 21:30:42] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /:undefined | STATUS: pending
+[2026-01-30 21:30:42] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: POST /analytics/telemetry/ph/api/hyper/send | Status: 404 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:42] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /:undefined | STATUS: pending
+[2026-01-30 21:30:42] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /:undefined | Status: 404 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:42] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /:undefined | Status: 404 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:42] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /:undefined | STATUS: pending
+[2026-01-30 21:30:42] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /:undefined | STATUS: pending
+[2026-01-30 21:30:42] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /:undefined | Status: 404 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:42] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /:undefined | Status: 404 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:42] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET / | STATUS: pending
+[2026-01-30 21:30:42] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET / | Status: 200 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:42] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET / | STATUS: pending
+[2026-01-30 21:30:42] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET / | STATUS: pending
+[2026-01-30 21:30:42] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET / | Status: 200 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:42] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET / | STATUS: pending
+[2026-01-30 21:30:42] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET / | Status: 200 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:42] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET / | Status: 200 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:42] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /:undefined | STATUS: pending
+[2026-01-30 21:30:42] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /:undefined | STATUS: pending
+[2026-01-30 21:30:42] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /:undefined | Status: 404 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:42] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /:undefined | Status: 404 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:42] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /:undefined | STATUS: pending
+[2026-01-30 21:30:42] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /:undefined | STATUS: pending
+[2026-01-30 21:30:42] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /:undefined | Status: 404 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:42] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /:undefined | Status: 404 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:42] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET / | STATUS: pending
+[2026-01-30 21:30:42] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET / | Status: 200 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:42] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET / | STATUS: pending
+[2026-01-30 21:30:42] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET / | Status: 200 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:42] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET / | STATUS: pending
+[2026-01-30 21:30:42] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET / | Status: 200 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:42] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET / | STATUS: pending
+[2026-01-30 21:30:42] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET / | Status: 200 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:42] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /:undefined | STATUS: pending
+[2026-01-30 21:30:42] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /:undefined | Status: 404 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:42] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /api/v2/${jndi:dns://MDEDiscovery34a203c784SeenInTheWildGet-8000} | STATUS: pending
+[2026-01-30 21:30:42] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /api/v2/${jndi:dns://MDEDiscovery34a203c784SeenInTheWildGet-8000} | Status: 404 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:42] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /:undefined | STATUS: pending
+[2026-01-30 21:30:42] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /:undefined | Status: 404 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:42] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /:undefined | STATUS: pending
+[2026-01-30 21:30:42] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /:undefined | Status: 404 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:42] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /:undefined | STATUS: pending
+[2026-01-30 21:30:42] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /:undefined | Status: 404 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:42] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET / | STATUS: pending
+[2026-01-30 21:30:42] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET / | Status: 200 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:42] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET / | STATUS: pending
+[2026-01-30 21:30:42] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET / | Status: 200 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:42] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /api/ | STATUS: pending
+[2026-01-30 21:30:42] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /api/ | Status: 404 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:42] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET / | STATUS: pending
+[2026-01-30 21:30:42] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET / | Status: 200 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:42] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET / | STATUS: pending
+[2026-01-30 21:30:42] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET / | Status: 200 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:42] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /:undefined | STATUS: pending
+[2026-01-30 21:30:42] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /:undefined | Status: 404 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:42] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /index.html | STATUS: pending
+[2026-01-30 21:30:42] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /index.html | Status: 404 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:42] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /:undefined | STATUS: pending
+[2026-01-30 21:30:42] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /:undefined | Status: 404 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:42] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /:undefined | STATUS: pending
+[2026-01-30 21:30:42] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /:undefined | Status: 404 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:42] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /:undefined | STATUS: pending
+[2026-01-30 21:30:42] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /:undefined | Status: 404 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:42] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET / | STATUS: pending
+[2026-01-30 21:30:42] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET / | Status: 200 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:42] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /login | STATUS: pending
+[2026-01-30 21:30:42] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /login | Status: 404 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:42] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET / | STATUS: pending
+[2026-01-30 21:30:42] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET / | Status: 200 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:42] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET / | STATUS: pending
+[2026-01-30 21:30:42] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET / | Status: 200 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:42] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET / | STATUS: pending
+[2026-01-30 21:30:42] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET / | Status: 200 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:42] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /:undefined | STATUS: pending
+[2026-01-30 21:30:42] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /:undefined | Status: 404 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:42] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET / | STATUS: pending
+[2026-01-30 21:30:42] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET / | Status: 200 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:42] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /:undefined | STATUS: pending
+[2026-01-30 21:30:42] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /:undefined | Status: 404 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:42] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /:undefined | STATUS: pending
+[2026-01-30 21:30:42] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /:undefined | Status: 404 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:42] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /:undefined | STATUS: pending
+[2026-01-30 21:30:42] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /:undefined | Status: 404 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:42] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET / | STATUS: pending
+[2026-01-30 21:30:42] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET / | Status: 200 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:42] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET / | STATUS: pending
+[2026-01-30 21:30:42] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET / | Status: 200 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:42] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /:undefined | STATUS: pending
+[2026-01-30 21:30:42] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /:undefined | Status: 404 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:42] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET / | STATUS: pending
+[2026-01-30 21:30:42] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET / | Status: 200 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:42] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET / | STATUS: pending
+[2026-01-30 21:30:42] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET / | Status: 200 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:42] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /:undefined | STATUS: pending
+[2026-01-30 21:30:42] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /:undefined | Status: 404 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:42] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /:undefined | STATUS: pending
+[2026-01-30 21:30:42] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /:undefined | Status: 404 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:42] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: POST / | STATUS: pending
+[2026-01-30 21:30:42] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: POST / | Status: 405 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:42] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /:undefined | STATUS: pending
+[2026-01-30 21:30:42] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /:undefined | STATUS: pending
+[2026-01-30 21:30:42] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /:undefined | Status: 404 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:42] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /:undefined | Status: 404 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:42] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET / | STATUS: pending
+[2026-01-30 21:30:42] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET / | Status: 200 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:42] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET / | STATUS: pending
+[2026-01-30 21:30:42] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET / | Status: 200 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:42] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: POST /:undefined | STATUS: pending
+[2026-01-30 21:30:42] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: POST /:undefined | Status: 404 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:42] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET / | STATUS: pending
+[2026-01-30 21:30:42] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET / | Status: 200 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:42] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET / | STATUS: pending
+[2026-01-30 21:30:42] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: POST /login | STATUS: pending
+[2026-01-30 21:30:42] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /:undefined | STATUS: pending
+[2026-01-30 21:30:42] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET / | Status: 200 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:42] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: POST /login | Status: 404 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:42] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /:undefined | STATUS: pending
+[2026-01-30 21:30:42] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /:undefined | Status: 404 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:42] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /:undefined | Status: 404 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:42] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /:undefined | STATUS: pending
+[2026-01-30 21:30:42] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /:undefined | Status: 404 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:43] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET / | STATUS: pending
+[2026-01-30 21:30:43] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET / | STATUS: pending
+[2026-01-30 21:30:43] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /:undefined | STATUS: pending
+[2026-01-30 21:30:43] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET / | Status: 200 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:43] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET / | Status: 200 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:43] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET / | STATUS: pending
+[2026-01-30 21:30:43] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /:undefined | Status: 404 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:43] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET / | Status: 200 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:43] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET / | STATUS: pending
+[2026-01-30 21:30:43] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET / | Status: 200 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:43] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /:undefined | STATUS: pending
+[2026-01-30 21:30:43] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /:undefined | Status: 404 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:43] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /:undefined | STATUS: pending
+[2026-01-30 21:30:43] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /:undefined | STATUS: pending
+[2026-01-30 21:30:43] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET / | STATUS: pending
+[2026-01-30 21:30:43] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /:undefined | Status: 404 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:43] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /:undefined | Status: 404 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:43] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET / | Status: 200 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:43] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /:undefined | STATUS: pending
+[2026-01-30 21:30:43] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /:undefined | Status: 404 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:43] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET / | STATUS: pending
+[2026-01-30 21:30:43] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET / | Status: 200 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:43] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /:undefined | STATUS: pending
+[2026-01-30 21:30:43] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET / | STATUS: pending
+[2026-01-30 21:30:43] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET / | STATUS: pending
+[2026-01-30 21:30:43] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /:undefined | Status: 404 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:43] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET / | Status: 200 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:43] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET / | Status: 200 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:43] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET / | STATUS: pending
+[2026-01-30 21:30:43] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET / | Status: 200 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:43] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /:undefined | STATUS: pending
+[2026-01-30 21:30:43] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /:undefined | Status: 404 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:43] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET / | STATUS: pending
+[2026-01-30 21:30:43] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /:undefined | STATUS: pending
+[2026-01-30 21:30:43] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET / | Status: 200 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:43] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /:undefined | Status: 404 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:43] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /:undefined | STATUS: pending
+[2026-01-30 21:30:43] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /:undefined | Status: 404 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:43] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /:undefined | STATUS: pending
+[2026-01-30 21:30:43] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /:undefined | Status: 404 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:43] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET / | STATUS: pending
+[2026-01-30 21:30:43] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET / | Status: 200 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:43] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET / | STATUS: pending
+[2026-01-30 21:30:43] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET / | Status: 200 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:43] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /:undefined | STATUS: pending
+[2026-01-30 21:30:43] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET / | STATUS: pending
+[2026-01-30 21:30:43] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /:undefined | Status: 404 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:43] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET / | Status: 200 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:43] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET / | STATUS: pending
+[2026-01-30 21:30:43] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET / | Status: 200 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:43] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /JSPWiki/wiki/${jndi:dns://MDEDiscovery34a203c784ApacheJspWiki-8000} | STATUS: pending
+[2026-01-30 21:30:43] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /JSPWiki/wiki/${jndi:dns://MDEDiscovery34a203c784ApacheJspWiki-8000} | Status: 404 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:43] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET / | STATUS: pending
+[2026-01-30 21:30:43] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET / | Status: 200 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:43] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /:undefined | STATUS: pending
+[2026-01-30 21:30:43] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /:undefined | STATUS: pending
+[2026-01-30 21:30:43] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /:undefined | Status: 404 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:43] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /:undefined | Status: 404 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:43] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /:undefined | STATUS: pending
+[2026-01-30 21:30:43] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /:undefined | Status: 404 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:43] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /:undefined | STATUS: pending
+[2026-01-30 21:30:43] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /:undefined | Status: 404 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:43] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET / | STATUS: pending
+[2026-01-30 21:30:43] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET / | STATUS: pending
+[2026-01-30 21:30:43] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET / | Status: 200 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:43] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /webtools/control/main | STATUS: pending
+[2026-01-30 21:30:43] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET / | Status: 200 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:43] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET / | STATUS: pending
+[2026-01-30 21:30:43] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /webtools/control/main | Status: 404 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:43] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /:undefined | STATUS: pending
+[2026-01-30 21:30:43] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET / | Status: 200 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:43] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /:undefined | Status: 404 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:43] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET / | STATUS: pending
+[2026-01-30 21:30:43] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET / | Status: 200 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:43] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /cgi-bin/ | STATUS: pending
+[2026-01-30 21:30:43] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET / | STATUS: pending
+[2026-01-30 21:30:43] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: POST /broker/xml | STATUS: pending
+[2026-01-30 21:30:43] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /cgi-bin/ | Status: 404 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:43] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /:undefined | STATUS: pending
+[2026-01-30 21:30:43] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET / | Status: 200 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:43] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: POST /broker/xml | Status: 404 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:43] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /:undefined | Status: 404 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:43] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /:undefined | STATUS: pending
+[2026-01-30 21:30:43] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /:undefined | Status: 404 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:43] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /:undefined | STATUS: pending
+[2026-01-30 21:30:43] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /:undefined | Status: 404 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:43] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET / | STATUS: pending
+[2026-01-30 21:30:43] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET / | Status: 200 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:43] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET / | STATUS: pending
+[2026-01-30 21:30:43] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: POST /broker/xml | STATUS: pending
+[2026-01-30 21:30:43] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET / | Status: 200 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:43] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET / | STATUS: pending
+[2026-01-30 21:30:43] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: POST /broker/xml | Status: 404 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:43] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /:undefined | STATUS: pending
+[2026-01-30 21:30:43] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET / | Status: 200 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:43] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /:undefined | Status: 404 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:43] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET / | STATUS: pending
+[2026-01-30 21:30:43] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET / | Status: 200 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:43] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET / | STATUS: pending
+[2026-01-30 21:30:43] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /portal/info.jsp | STATUS: pending
+[2026-01-30 21:30:43] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET / | Status: 200 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:43] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /:undefined | STATUS: pending
+[2026-01-30 21:30:43] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /:undefined | STATUS: pending
+[2026-01-30 21:30:43] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /portal/info.jsp | Status: 404 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:43] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /:undefined | STATUS: pending
+[2026-01-30 21:30:43] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /:undefined | Status: 404 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:43] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /:undefined | Status: 404 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:43] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /:undefined | Status: 404 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:43] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /:undefined | STATUS: pending
+[2026-01-30 21:30:43] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /:undefined | Status: 404 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:43] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET / | STATUS: pending
+[2026-01-30 21:30:43] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET / | STATUS: pending
+[2026-01-30 21:30:43] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET / | Status: 200 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:43] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET / | Status: 200 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:43] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET / | STATUS: pending
+[2026-01-30 21:30:43] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /:undefined | STATUS: pending
+[2026-01-30 21:30:43] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET / | Status: 200 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:43] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /:undefined | Status: 404 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:43] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET / | STATUS: pending
+[2026-01-30 21:30:43] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET / | Status: 200 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:43] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET / | STATUS: pending
+[2026-01-30 21:30:43] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET / | Status: 200 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:43] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /:undefined | STATUS: pending
+[2026-01-30 21:30:43] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /:undefined | STATUS: pending
+[2026-01-30 21:30:43] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /:undefined | Status: 404 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:43] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /:undefined | Status: 404 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:43] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /:undefined | STATUS: pending
+[2026-01-30 21:30:43] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /:undefined | Status: 404 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:43] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /:undefined | STATUS: pending
+[2026-01-30 21:30:43] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /:undefined | Status: 404 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:43] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET / | STATUS: pending
+[2026-01-30 21:30:43] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /:undefined | STATUS: pending
+[2026-01-30 21:30:43] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET / | Status: 200 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:43] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET / | STATUS: pending
+[2026-01-30 21:30:43] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET / | STATUS: pending
+[2026-01-30 21:30:43] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /:undefined | Status: 404 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:43] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET / | Status: 200 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:43] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET / | Status: 200 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:43] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET / | STATUS: pending
+[2026-01-30 21:30:43] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET / | Status: 200 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:43] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /:undefined | STATUS: pending
+[2026-01-30 21:30:43] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /:undefined | Status: 404 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:43] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /:undefined | STATUS: pending
+[2026-01-30 21:30:43] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /:undefined | Status: 404 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:43] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /:undefined | STATUS: pending
+[2026-01-30 21:30:43] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /:undefined | Status: 404 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:43] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET / | STATUS: pending
+[2026-01-30 21:30:43] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET / | Status: 200 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:43] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET / | STATUS: pending
+[2026-01-30 21:30:43] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET / | Status: 200 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:43] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET / | STATUS: pending
+[2026-01-30 21:30:43] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET / | Status: 200 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:43] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /:undefined | STATUS: pending
+[2026-01-30 21:30:43] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET / | STATUS: pending
+[2026-01-30 21:30:43] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /:undefined | Status: 404 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:43] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET / | Status: 200 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:43] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /:undefined | STATUS: pending
+[2026-01-30 21:30:43] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /:undefined | Status: 404 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:43] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET / | STATUS: pending
+[2026-01-30 21:30:43] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET / | Status: 200 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:43] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /:undefined | STATUS: pending
+[2026-01-30 21:30:43] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /:undefined | Status: 404 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:43] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /:undefined | STATUS: pending
+[2026-01-30 21:30:43] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /:undefined | Status: 404 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:43] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /:undefined | STATUS: pending
+[2026-01-30 21:30:43] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /:undefined | Status: 404 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:43] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET / | STATUS: pending
+[2026-01-30 21:30:43] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET / | Status: 200 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:43] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /:undefined | STATUS: pending
+[2026-01-30 21:30:43] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /:undefined | Status: 404 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:43] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET / | STATUS: pending
+[2026-01-30 21:30:43] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET / | Status: 200 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:43] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET / | STATUS: pending
+[2026-01-30 21:30:43] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET / | Status: 200 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:43] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET / | STATUS: pending
+[2026-01-30 21:30:43] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET / | Status: 200 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:43] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /:undefined | STATUS: pending
+[2026-01-30 21:30:43] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /:undefined | Status: 404 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:43] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /:undefined | STATUS: pending
+[2026-01-30 21:30:43] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /:undefined | Status: 404 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:43] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /:undefined | STATUS: pending
+[2026-01-30 21:30:43] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /:undefined | Status: 404 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:43] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET / | STATUS: pending
+[2026-01-30 21:30:43] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET / | Status: 200 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:43] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /:undefined | STATUS: pending
+[2026-01-30 21:30:43] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /:undefined | Status: 404 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:43] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET / | STATUS: pending
+[2026-01-30 21:30:43] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET / | Status: 200 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:43] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /:undefined | STATUS: pending
+[2026-01-30 21:30:43] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /:undefined | Status: 404 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:43] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET / | STATUS: pending
+[2026-01-30 21:30:43] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET / | STATUS: pending
+[2026-01-30 21:30:43] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET / | Status: 200 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:43] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET / | STATUS: pending
+[2026-01-30 21:30:43] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET / | Status: 200 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:43] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET / | Status: 200 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:43] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /:undefined | STATUS: pending
+[2026-01-30 21:30:43] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /:undefined | Status: 404 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:43] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /:undefined | STATUS: pending
+[2026-01-30 21:30:43] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /:undefined | Status: 404 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:43] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /:undefined | STATUS: pending
+[2026-01-30 21:30:43] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /:undefined | STATUS: pending
+[2026-01-30 21:30:43] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET / | STATUS: pending
+[2026-01-30 21:30:43] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /:undefined | Status: 404 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:43] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /:undefined | Status: 404 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:43] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET / | Status: 200 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:43] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET / | STATUS: pending
+[2026-01-30 21:30:43] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET / | Status: 200 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:43] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /:undefined | STATUS: pending
+[2026-01-30 21:30:43] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /:undefined | Status: 404 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:44] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /:undefined | STATUS: pending
+[2026-01-30 21:30:44] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /:undefined | Status: 404 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:44] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET / | STATUS: pending
+[2026-01-30 21:30:44] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET / | Status: 200 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:44] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /cgi-bin/ | STATUS: pending
+[2026-01-30 21:30:44] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /cgi-bin/ | Status: 404 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:44] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET / | STATUS: pending
+[2026-01-30 21:30:44] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET / | Status: 200 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:44] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: POST / | STATUS: pending
+[2026-01-30 21:30:44] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: POST / | Status: 405 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:44] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: POST / | STATUS: pending
+[2026-01-30 21:30:44] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: POST / | Status: 405 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:44] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET / | STATUS: pending
+[2026-01-30 21:30:44] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET / | Status: 200 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:44] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: POST / | STATUS: pending
+[2026-01-30 21:30:44] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: POST / | Status: 405 | Time: 0.00s | STATUS: success
+[2026-01-30 21:30:44] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET / | STATUS: pending
+[2026-01-30 21:30:44] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET / | Status: 200 | Time: 0.00s | STATUS: success
+[2026-02-01 15:48:16] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /api/health | STATUS: pending
+[2026-02-01 15:48:16] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /api/health | Status: 200 | Time: 0.00s | STATUS: success
+[2026-02-01 15:51:43] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /api/health | STATUS: pending
+[2026-02-01 15:51:43] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /api/health | Status: 200 | Time: 0.00s | STATUS: success
+[2026-02-01 15:51:43] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: POST /api/auth/login | STATUS: pending
+[2026-02-01 15:51:43] INFO | ACTION: LOGIN_SUCCESS | USER: admin | DETAILS: User admin logged in | STATUS: success
+[2026-02-01 15:51:43] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: POST /api/auth/login | Status: 200 | Time: 0.30s | STATUS: success
+[2026-02-01 15:51:43] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: GET /api/cases | STATUS: pending
+[2026-02-01 15:51:43] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: GET /api/cases | Status: 200 | Time: 0.01s | STATUS: success
+[2026-02-01 15:51:43] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: POST /api/auth/login | STATUS: pending
+[2026-02-01 15:51:44] INFO | ACTION: LOGIN_SUCCESS | USER: admin | DETAILS: User admin logged in | STATUS: success
+[2026-02-01 15:51:44] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: POST /api/auth/login | Status: 200 | Time: 0.29s | STATUS: success
+[2026-02-01 15:51:44] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: GET /api/accounts/requests | STATUS: pending
+[2026-02-01 15:51:44] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: GET /api/accounts/requests | Status: 200 | Time: 0.02s | STATUS: success
+[2026-02-01 15:53:06] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /api/health | STATUS: pending
+[2026-02-01 15:53:06] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /api/health | Status: 200 | Time: 0.00s | STATUS: success
+[2026-02-01 15:53:06] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: POST /api/auth/login | STATUS: pending
+[2026-02-01 15:53:06] INFO | ACTION: LOGIN_SUCCESS | USER: admin | DETAILS: User admin logged in | STATUS: success
+[2026-02-01 15:53:06] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: POST /api/auth/login | Status: 200 | Time: 0.29s | STATUS: success
+[2026-02-01 15:53:06] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: GET /api/accounts | STATUS: pending
+[2026-02-01 15:53:06] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: GET /api/accounts | Status: 200 | Time: 0.01s | STATUS: success
+[2026-02-01 15:53:06] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: GET /api/cases | STATUS: pending
+[2026-02-01 15:53:06] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: GET /api/cases | Status: 200 | Time: 0.01s | STATUS: success
+[2026-02-01 15:53:07] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: GET /api/contacts | STATUS: pending
+[2026-02-01 15:53:07] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: GET /api/contacts | Status: 200 | Time: 0.01s | STATUS: success
+[2026-02-01 16:22:29] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /api/health | STATUS: pending
+[2026-02-01 16:22:29] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /api/health | Status: 200 | Time: 0.01s | STATUS: success
+[2026-02-01 16:22:29] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: POST /api/auth/login | STATUS: pending
+[2026-02-01 16:22:29] INFO | ACTION: LOGIN_SUCCESS | USER: admin | DETAILS: User admin logged in | STATUS: success
+[2026-02-01 16:22:29] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: POST /api/auth/login | Status: 200 | Time: 0.29s | STATUS: success
+[2026-02-01 16:22:29] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: GET /api/cases | STATUS: pending
+[2026-02-01 16:22:29] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: GET /api/cases | Status: 200 | Time: 0.01s | STATUS: success
+[2026-02-01 16:22:29] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: POST /api/auth/login | STATUS: pending
+[2026-02-01 16:22:29] INFO | ACTION: LOGIN_SUCCESS | USER: admin | DETAILS: User admin logged in | STATUS: success
+[2026-02-01 16:22:29] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: POST /api/auth/login | Status: 200 | Time: 0.29s | STATUS: success
+[2026-02-01 16:22:29] INFO | ACTION: API_REQUEST | USER: unknown | DETAILS: GET /api/accounts/requests | STATUS: pending
+[2026-02-01 16:22:29] INFO | ACTION: API_RESPONSE | USER: unknown | DETAILS: GET /api/accounts/requests | Status: 200 | Time: 0.01s | STATUS: success
+[2026-02-01 17:02:59] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /docs | STATUS: pending
+[2026-02-01 17:02:59] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /docs | Status: 200 | Time: 0.00s | STATUS: success
+[2026-02-01 17:06:22] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /health | STATUS: pending
+[2026-02-01 17:06:22] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /health | Status: 404 | Time: 0.01s | STATUS: success
+[2026-02-01 17:06:26] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /openapi.json | STATUS: pending
+[2026-02-01 17:06:26] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /openapi.json | Status: 200 | Time: 0.00s | STATUS: success
+[2026-02-01 17:06:32] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /openapi.json | STATUS: pending
+[2026-02-01 17:06:32] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /openapi.json | Status: 200 | Time: 0.00s | STATUS: success
+[2026-02-01 17:06:43] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /docs | STATUS: pending
+[2026-02-01 17:06:43] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /docs | Status: 200 | Time: 0.00s | STATUS: success
+[2026-02-01 17:06:50] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /health | STATUS: pending
+[2026-02-01 17:06:50] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /health | Status: 404 | Time: 0.00s | STATUS: success
+[2026-02-01 17:06:52] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /api/servicenow/health | STATUS: pending
+[2026-02-01 17:06:52] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /api/servicenow/health | Status: 404 | Time: 0.00s | STATUS: success
+[2026-02-01 17:06:53] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /debug/users | STATUS: pending
+[2026-02-01 17:06:53] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /debug/users | Status: 404 | Time: 0.00s | STATUS: success
+[2026-02-01 17:07:16] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /health | STATUS: pending
+[2026-02-01 17:07:16] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /health | Status: 404 | Time: 0.00s | STATUS: success

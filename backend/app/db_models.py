@@ -7,6 +7,7 @@ import enum
 
 class UserRole(str, enum.Enum):
     admin = "admin"
+    manager = "manager"
     user = "user"
 
 
@@ -126,6 +127,8 @@ class Account(Base):
     description = Column(Text)
     billing_address = Column(Text)
     owner_id = Column(Integer, ForeignKey("users.id"))
+    correlation_id = Column(String(255), nullable=True)
+    integration_status = Column(String(50), nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
@@ -134,6 +137,56 @@ class Account(Base):
     contacts = relationship("Contact", back_populates="account")
     opportunities = relationship("Opportunity", back_populates="account")
     cases = relationship("Case", back_populates="account")
+
+
+class AccountRequestStatus(str, enum.Enum):
+    PENDING = "PENDING"
+    APPROVED = "APPROVED"
+    COMPLETED = "COMPLETED"
+    REJECTED = "REJECTED"
+    FAILED = "FAILED"
+
+
+class AccountCreationRequest(Base):
+    """
+    Tracks account creation requests for approval/audit workflows.
+    - Managers/admins auto-complete but still record an audit request.
+    - Regular users create a PENDING request that must be approved.
+    """
+    __tablename__ = "account_creation_requests"
+
+    id = Column(Integer, primary_key=True, index=True)
+
+    # Snapshot of requested data
+    name = Column(String(255), nullable=False, index=True)
+    requested_payload = Column(JSON, nullable=False)
+
+    # Request metadata
+    status = Column(String(20), nullable=False, default=AccountRequestStatus.PENDING.value, index=True)
+    auto_approved = Column(Boolean, default=False)
+    correlation_id = Column(String(255), index=True)
+
+    # User context
+    requested_by_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    approved_by_id = Column(Integer, ForeignKey("users.id"))
+
+    # Downstream integration/audit details (MuleSoft/ServiceNow placeholders)
+    servicenow_ticket_id = Column(String(255), index=True)
+    servicenow_status = Column(String(50))
+    mulesoft_transaction_id = Column(String(255), index=True)
+    integration_status = Column(String(50))
+    error_message = Column(Text)
+
+    # Created resource linkage
+    created_account_id = Column(Integer, ForeignKey("accounts.id"))
+
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+
+    # Relationships
+    requested_by = relationship("User", foreign_keys=[requested_by_id])
+    approved_by = relationship("User", foreign_keys=[approved_by_id])
+    created_account = relationship("Account")
 
 
 class Contact(Base):
@@ -729,3 +782,140 @@ class SAPIntegrationLog(Base):
 
     # Relationships
     case_mapping = relationship("SAPCaseMapping", backref="integration_logs")
+
+
+class MulesoftRequest(Base):
+    __tablename__ = "mulesoft_requests"
+
+    id = Column(Integer, primary_key=True, index=True)
+    account_id = Column(Integer, ForeignKey("accounts.id"), nullable=True, index=True)
+    name = Column(String(255), nullable=True)  # Store account name for create requests
+    request_type = Column(String(50), nullable=False)  # create, update, delete
+    status = Column(String(50), nullable=False, default="pending")  # pending, sent, approved, rejected, failed
+    mulesoft_response = Column(Text, nullable=True)
+    error_message = Column(Text, nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+
+    # Relationships
+    account = relationship("Account", backref="mulesoft_requests")
+
+
+class ServiceAppointment(Base):
+    """
+    Service Appointments for field service scheduling (Scenario 2)
+    """
+    __tablename__ = "service_appointments"
+
+    id = Column(Integer, primary_key=True, index=True)
+    appointment_number = Column(String(50), unique=True, index=True)
+    account_id = Column(Integer, ForeignKey("accounts.id"), nullable=True)
+    case_id = Column(Integer, ForeignKey("cases.id"), nullable=True)
+
+    subject = Column(String(255), nullable=False)
+    description = Column(Text, nullable=True)
+    appointment_type = Column(String(50), default="Field Service")
+
+    scheduled_start = Column(DateTime(timezone=True), nullable=True)
+    scheduled_end = Column(DateTime(timezone=True), nullable=True)
+    actual_start = Column(DateTime(timezone=True), nullable=True)
+    actual_end = Column(DateTime(timezone=True), nullable=True)
+
+    status = Column(String(50), default="Scheduled")
+    priority = Column(String(20), default="Normal")
+
+    assigned_technician_id = Column(Integer, nullable=True)
+    technician_name = Column(String(100), nullable=True)
+
+    location = Column(String(255), nullable=True)
+    required_skills = Column(String(255), nullable=True)
+    required_parts = Column(Text, nullable=True)
+
+    owner_id = Column(Integer, ForeignKey("users.id"), nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+
+    # Relationships
+    account = relationship("Account", backref="service_appointments")
+    case = relationship("Case", backref="service_appointments")
+    owner = relationship("User", foreign_keys=[owner_id], backref="owned_appointments")
+
+
+class SchedulingRequest(Base):
+    """
+    Track MuleSoft scheduling requests (Scenario 2)
+    """
+    __tablename__ = "scheduling_requests"
+
+    id = Column(Integer, primary_key=True, index=True)
+    appointment_id = Column(Integer, ForeignKey("service_appointments.id"), nullable=True, index=True)
+    appointment_number = Column(String(50), nullable=True)
+
+    request_type = Column(String(50), nullable=False)
+    status = Column(String(50), default="PENDING")
+    integration_status = Column(String(50), nullable=True)
+
+    assigned_technician_id = Column(Integer, nullable=True)
+    technician_name = Column(String(100), nullable=True)
+    parts_available = Column(Boolean, default=True)
+    parts_status = Column(Text, nullable=True)
+
+    mulesoft_transaction_id = Column(String(255), nullable=True)
+    correlation_id = Column(String(255), nullable=True)
+
+    sap_hr_response = Column(Text, nullable=True)
+    sap_inventory_response = Column(Text, nullable=True)
+
+    requested_by_id = Column(Integer, ForeignKey("users.id"), nullable=True)
+    error_message = Column(Text, nullable=True)
+
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+
+    # Relationships
+    appointment = relationship("ServiceAppointment", backref="scheduling_requests")
+    requested_by = relationship("User", foreign_keys=[requested_by_id])
+
+
+class WorkOrder(Base):
+    """
+    Work Orders for service requests (Scenario 3)
+    """
+    __tablename__ = "work_orders"
+
+    id = Column(Integer, primary_key=True, index=True)
+    work_order_number = Column(String(50), unique=True, index=True)
+    account_id = Column(Integer, ForeignKey("accounts.id"), nullable=True)
+    case_id = Column(Integer, ForeignKey("cases.id"), nullable=True)
+
+    subject = Column(String(255), nullable=False)
+    description = Column(Text, nullable=True)
+    priority = Column(String(20), default="Medium")
+    service_type = Column(String(50), default="Warranty")
+    product = Column(String(255), nullable=True)
+
+    status = Column(String(50), default="PENDING")
+    integration_status = Column(String(50), nullable=True)
+
+    entitlement_verified = Column(Boolean, default=False)
+    entitlement_type = Column(String(50), nullable=True)
+    entitlement_end_date = Column(DateTime(timezone=True), nullable=True)
+
+    sap_order_id = Column(String(100), nullable=True)
+    sap_notification_id = Column(String(100), nullable=True)
+
+    mulesoft_transaction_id = Column(String(255), nullable=True)
+    correlation_id = Column(String(255), nullable=True)
+
+    requested_by_id = Column(Integer, ForeignKey("users.id"), nullable=True)
+    error_message = Column(Text, nullable=True)
+
+    owner_id = Column(Integer, ForeignKey("users.id"), nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+
+    # Relationships
+    account = relationship("Account", backref="work_orders")
+    case = relationship("Case", backref="work_orders")
+    owner = relationship("User", foreign_keys=[owner_id], backref="owned_work_orders")
+    requested_by = relationship("User", foreign_keys=[requested_by_id])

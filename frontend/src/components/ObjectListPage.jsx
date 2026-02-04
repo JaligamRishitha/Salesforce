@@ -117,8 +117,10 @@ export default function ObjectListPage({
   };
 
   const handleSaveRecord = async (data) => {
-    await api.create(data);
+    const response = await api.create(data);
+    // Reload the list in case a record was created immediately.
     loadItems();
+    return response;
   };
 
   const handleRowClick = (item) => {

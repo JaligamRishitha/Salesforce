@@ -13,6 +13,10 @@ const columns = [
   { key: 'phone', label: 'Phone' },
   { key: 'industry', label: 'Industry' },
   { key: 'website', label: 'Website' },
+  { key: 'request_status', label: 'Request Status' },
+  { key: 'servicenow_ticket_id', label: 'ServiceNow Ticket' },
+  { key: 'integration_status', label: 'Integration Status' },
+  { key: 'correlation_id', label: 'Correlation ID' },
   { key: 'owner_alias', label: 'Account Owner Alias' },
 ];
 

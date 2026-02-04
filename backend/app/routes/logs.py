@@ -50,3 +50,27 @@ async def log_action_endpoint(
     )
     
     return {"status": "logged"}
+
+
+@router.get("")
+async def get_logs(
+    skip: int = 0,
+    limit: int = 100,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Get audit logs"""
+    from ..db_models import AuditLog
+    
+    logs = db.query(AuditLog).order_by(AuditLog.created_at.desc()).offset(skip).limit(limit).all()
+    return [
+        {
+            "id": log.id,
+            "action_type": log.action_type,
+            "user": log.user,
+            "details": log.details,
+            "status": log.status,
+            "created_at": log.created_at
+        }
+        for log in logs
+    ]
