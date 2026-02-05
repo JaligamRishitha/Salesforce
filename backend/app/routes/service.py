@@ -65,6 +65,7 @@ from ..auth import get_current_user
 from ..db_models import User, ServiceAccount, ServiceLevelAgreement, Quotation, Invoice, WarrantyExtension, ServiceAppointment, SchedulingRequest, WorkOrder
 from ..logger import log_action
 from ..servicenow import get_servicenow_client
+from ..sap import get_sap_client
 
 router = APIRouter(prefix="/api/service", tags=["service"])
 
@@ -560,24 +561,49 @@ async def approve_scheduling_request(
     if not scheduling_request:
         raise HTTPException(status_code=404, detail="Scheduling request not found")
 
-    # Update scheduling request - Agent approved, sent to SAP
-    scheduling_request.status = "AGENT_APPROVED"
-    scheduling_request.integration_status = "SENT_TO_SAP"
-    scheduling_request.assigned_technician_id = technician_id
-    scheduling_request.technician_name = technician_name
-    scheduling_request.parts_available = True
-    scheduling_request.sap_hr_response = f"Technician {technician_name} assigned from SAP HR"
-    scheduling_request.sap_inventory_response = "Parts verified in SAP inventory"
+    # Get appointment details
+    appointment = None
+    if scheduling_request.appointment_id:
+        appointment = db.query(ServiceAppointment).filter(ServiceAppointment.id == scheduling_request.appointment_id).first()
+
+    # Send to SAP - Create Maintenance Order
+    sap_client = get_sap_client()
+    sap_order_data = {
+        "order_type": "PM01",  # Maintenance order
+        "description": appointment.subject if appointment else "Service Appointment",
+        "priority": "3" if appointment and appointment.priority == "Normal" else "2",
+        "scheduled_start": appointment.scheduled_start.isoformat() if appointment and appointment.scheduled_start else None,
+        "scheduled_end": appointment.scheduled_end.isoformat() if appointment and appointment.scheduled_end else None,
+        "technician": str(technician_id),
+        "work_center": "WC01",
+        "plant": "1000",
+        "notes": f"Service appointment from Salesforce. Appointment: {scheduling_request.appointment_number}. ServiceNow: {scheduling_request.mulesoft_transaction_id}"
+    }
+
+    sap_result = await sap_client.create_maintenance_order(sap_order_data)
+
+    # Update scheduling request
+    if sap_result.get("success"):
+        scheduling_request.status = "AGENT_APPROVED"
+        scheduling_request.integration_status = "SENT_TO_SAP"
+        scheduling_request.assigned_technician_id = technician_id
+        scheduling_request.technician_name = technician_name
+        scheduling_request.parts_available = True
+        scheduling_request.sap_hr_response = f"SAP Maintenance Order: {sap_result.get('order_number')}"
+        scheduling_request.sap_inventory_response = f"SAP Order ID: {sap_result.get('order_id')}"
+    else:
+        scheduling_request.status = "AGENT_APPROVED"
+        scheduling_request.integration_status = "SAP_ERROR"
+        scheduling_request.error_message = f"SAP integration failed: {sap_result.get('error')}"
+
     scheduling_request.updated_at = datetime.now()
 
     # Update appointment with technician
-    if scheduling_request.appointment_id:
-        appointment = db.query(ServiceAppointment).filter(ServiceAppointment.id == scheduling_request.appointment_id).first()
-        if appointment:
-            appointment.assigned_technician_id = technician_id
-            appointment.technician_name = technician_name
-            appointment.status = "Assigned - Sent to SAP"
-            appointment.updated_at = datetime.now()
+    if appointment:
+        appointment.assigned_technician_id = technician_id
+        appointment.technician_name = technician_name
+        appointment.status = "Assigned - Sent to SAP" if sap_result.get("success") else "Assigned - SAP Error"
+        appointment.updated_at = datetime.now()
 
     db.commit()
     db.refresh(scheduling_request)
@@ -585,13 +611,15 @@ async def approve_scheduling_request(
     log_action(
         action_type="APPROVE_SCHEDULING",
         user=current_user.username,
-        details=f"Agent approved scheduling request {request_id}, assigned technician {technician_name}, sent to SAP",
-        status="success"
+        details=f"Agent approved scheduling request {request_id}, assigned technician {technician_name}, SAP Order: {sap_result.get('order_number', 'N/A')}",
+        status="success" if sap_result.get("success") else "warning"
     )
 
     return {
-        "message": "Scheduling request approved by agent and sent to SAP successfully",
-        "scheduling_request": scheduling_request
+        "message": "Scheduling request approved by agent and sent to SAP successfully" if sap_result.get("success") else "Approved but SAP integration failed",
+        "scheduling_request": scheduling_request,
+        "sap_order_number": sap_result.get("order_number"),
+        "sap_order_id": sap_result.get("order_id")
     }
 
 
@@ -730,7 +758,6 @@ async def approve_work_order_request(
     current_user: User = Depends(get_current_user)
 ):
     """Agent approves work order request and sends to SAP"""
-    import random
 
     work_order = db.query(WorkOrder).filter(WorkOrder.id == request_id).first()
     if not work_order:
@@ -738,11 +765,43 @@ async def approve_work_order_request(
 
     # Agent reviews and verifies entitlement, then sends to SAP
     if entitlement_verified:
-        work_order.status = "AGENT_APPROVED"
-        work_order.entitlement_verified = True
-        work_order.entitlement_type = work_order.service_type
-        work_order.sap_order_id = f"SAP-SO-{datetime.now().strftime('%Y%m%d')}-{random.randint(10000, 99999)}"
-        work_order.sap_notification_id = f"SAP-NOT-{datetime.now().strftime('%Y%m%d')}-{random.randint(10000, 99999)}"
+        # Send to SAP - Create Maintenance Order or Sales Order based on service type
+        sap_client = get_sap_client()
+
+        if work_order.service_type in ["Warranty", "Maintenance", "Repair"]:
+            # Create PM Maintenance Order
+            sap_order_data = {
+                "order_type": "PM01",
+                "description": work_order.subject,
+                "priority": "2" if work_order.priority == "High" else "3",
+                "notes": f"Work Order from Salesforce: {work_order.work_order_number}. ServiceNow: {work_order.mulesoft_transaction_id}. Service Type: {work_order.service_type}"
+            }
+            sap_result = await sap_client.create_maintenance_order(sap_order_data)
+        else:
+            # Create Sales Order for installation/other services
+            sap_order_data = {
+                "customer_id": f"CUST-{work_order.account_id}" if work_order.account_id else "CUST-DEFAULT",
+                "order_type": "ZOR",
+                "sales_org": "1000",
+                "distribution_channel": "10",
+                "division": "00",
+                "items": [{
+                    "material": f"SERVICE-{work_order.service_type.upper()}",
+                    "quantity": 1,
+                    "unit": "EA",
+                    "price": 0.00
+                }],
+                "reference": f"Salesforce Work Order {work_order.work_order_number}"
+            }
+            sap_result = await sap_client.create_sales_order(sap_order_data)
+
+        # Update work order based on SAP result
+        if sap_result.get("success"):
+            work_order.status = "AGENT_APPROVED"
+            work_order.entitlement_verified = True
+            work_order.entitlement_type = work_order.service_type
+            work_order.sap_order_id = sap_result.get("order_id")
+            work_order.sap_notification_id = sap_result.get("order_number")
         work_order.integration_status = "SENT_TO_SAP"
         work_order.error_message = None
     else:

@@ -209,7 +209,7 @@ export default function ObjectListPage({
                 return (
                   <button
                     type="button"
-                    key={index}
+                    key={`${action.label}-${index}`}
                     onClick={() => {
                       if (isDisabled) {
                         toast.error(`Please select at least one ${objectLabel.toLowerCase()} first`);
