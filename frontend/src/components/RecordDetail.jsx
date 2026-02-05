@@ -117,8 +117,15 @@ export default function RecordDetail({ objectType, api }) {
       setRecord(response.data);
     } catch (error) {
       console.error('Failed to load record:', error);
-      toast.error('Failed to load record');
-      navigate(`/${objectType}s`);
+      const errorMsg = error.response?.status === 404
+        ? `${config.label} not found`
+        : `Failed to load ${config.label.toLowerCase()}`;
+      toast.error(errorMsg);
+
+      // Only navigate away after a delay to prevent multiple redirects
+      setTimeout(() => {
+        navigate(`/${objectType}s`);
+      }, 1000);
     } finally {
       setLoading(false);
     }
