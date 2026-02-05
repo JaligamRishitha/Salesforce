@@ -12,7 +12,6 @@ import {
   UserCircleIcon,
   CogIcon,
   MagnifyingGlassIcon,
-  DocumentIcon,
 } from '@heroicons/react/24/outline';
 import {
   HomeIcon as HomeIconSolid,
@@ -27,7 +26,6 @@ import {
   UserCircleIcon as UserCircleIconSolid,
   CogIcon as CogIconSolid,
   MagnifyingGlassIcon as MagnifyingGlassIconSolid,
-  DocumentIcon as DocumentIconSolid,
 } from '@heroicons/react/24/solid';
 
 const navItems = [
@@ -41,9 +39,8 @@ const navItems = [
   // { path: '/marketing', label: 'Marketing', Icon: MegaphoneIcon, IconSolid: MegaphoneIconSolid }, // Hidden
   // { path: '/commerce', label: 'Commerce', Icon: ShoppingCartIcon, IconSolid: ShoppingCartIconSolid }, // Hidden
   // { path: '/generative', label: 'Generative Canvas', Icon: Squares2X2Icon, IconSolid: Squares2X2IconSolid }, // Hidden
-  { path: '/requests', label: 'Requests', Icon: DocumentIcon, IconSolid: DocumentIconSolid },
-  { path: '/mulesoft', label: 'MuleSoft', Icon: CogIcon, IconSolid: CogIconSolid },
-  { path: '/integration-tracking', label: 'Tracking', Icon: MagnifyingGlassIcon, IconSolid: MagnifyingGlassIconSolid },
+  { path: '/servicenow', label: 'ServiceNow', Icon: CogIcon, IconSolid: CogIconSolid },
+  { path: '/servicenow-tracking', label: 'Tracking', Icon: MagnifyingGlassIcon, IconSolid: MagnifyingGlassIconSolid },
   { path: '/account', label: 'Your Account', Icon: UserCircleIcon, IconSolid: UserCircleIconSolid },
 ];
 

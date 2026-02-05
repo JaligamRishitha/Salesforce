@@ -3,7 +3,6 @@ import { BuildingOfficeIcon, ChevronDownIcon } from '@heroicons/react/24/solid';
 import ObjectListPage from '../components/ObjectListPage';
 import ImportModal from '../components/ImportModal';
 import AssignLabelModal from '../components/AssignLabelModal';
-import MuleSoftIntegrationTab from '../components/MuleSoftIntegrationTab';
 import AccountRequestsStatus from './AccountRequestsStatus';
 import { accountsAPI } from '../services/api';
 import toast from 'react-hot-toast';
@@ -85,57 +84,46 @@ export default function Accounts() {
               >
                 Requests
               </button>
-              <button
-                type="button"
-                onClick={() => setActiveTab('mulesoft')}
-                className={`py-2 px-1 text-sm font-medium border-b-2 transition-colors ${
-                  activeTab === 'mulesoft'
-                    ? 'border-sf-blue-500 text-sf-blue-500'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
-              >
-                MuleSoft Integration
-              </button>
             </nav>
           </div>
         </div>
       </div>
 
       {activeTab === 'accounts' && (
-        <ObjectListPage
-          objectType="account"
-          objectLabel="Account"
-          columns={columns}
-          api={accountsAPI}
-          actions={actions}
-          icon={<BuildingOfficeIcon className="w-5 h-5 text-white" />}
-          iconColor="bg-indigo-500"
-          emptyTitle="Accounts show where your contacts work"
-          emptyDescription="Improve your reporting and deal tracking with accounts."
-          onSelectionChange={(ids, records) => setSelectedRecords(records)}
-        />
+        <>
+          <ObjectListPage
+            objectType="account"
+            objectLabel="Account"
+            columns={columns}
+            api={accountsAPI}
+            actions={actions}
+            icon={<BuildingOfficeIcon className="w-5 h-5 text-white" />}
+            iconColor="bg-indigo-500"
+            emptyTitle="Accounts show where your contacts work"
+            emptyDescription="Improve your reporting and deal tracking with accounts."
+            onSelectionChange={(ids, records) => setSelectedRecords(records)}
+          />
+
+          <ImportModal
+            isOpen={showImportModal}
+            onClose={() => setShowImportModal(false)}
+            objectType="account"
+            api={accountsAPI}
+            onSuccess={handleImportSuccess}
+          />
+
+          <AssignLabelModal
+            isOpen={showLabelModal}
+            onClose={() => setShowLabelModal(false)}
+            selectedCount={selectedRecords.length}
+            onAssign={(labels) => {
+              console.log('Assigned labels:', labels);
+            }}
+          />
+        </>
       )}
 
       {activeTab === 'requests' && <AccountRequestsStatus />}
-
-      {activeTab === 'mulesoft' && <MuleSoftIntegrationTab />}
-
-      <ImportModal
-        isOpen={showImportModal}
-        onClose={() => setShowImportModal(false)}
-        objectType="account"
-        api={accountsAPI}
-        onSuccess={handleImportSuccess}
-      />
-
-      <AssignLabelModal
-        isOpen={showLabelModal}
-        onClose={() => setShowLabelModal(false)}
-        selectedCount={selectedRecords.length}
-        onAssign={(labels) => {
-          console.log('Assigned labels:', labels);
-        }}
-      />
     </>
   );
 }

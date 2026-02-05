@@ -15,8 +15,8 @@ import Marketing from './pages/Marketing';
 import Commerce from './pages/Commerce';
 import GenerativeCanvas from './pages/GenerativeCanvas';
 import YourAccount from './pages/YourAccount';
-import MuleSoftScenarios from './pages/MuleSoftScenarios';
-import IntegrationTracking from './pages/IntegrationTracking';
+import ServiceNowScenarios from './pages/ServiceNowScenarios';
+import ServiceNowTracking from './pages/ServiceNowTracking';
 import AccountRequestsStatus from './pages/AccountRequestsStatus';
 import {
   contactsAPI,
@@ -80,10 +80,9 @@ function AppRoutes() {
         <Route path="commerce" element={<Commerce />} />
         <Route path="generative" element={<GenerativeCanvas />} />
         <Route path="account" element={<YourAccount />} />
-        <Route path="requests" element={<AccountRequestsStatus />} />
         <Route path="account-requests-status" element={<AccountRequestsStatus />} />
-        <Route path="mulesoft" element={<MuleSoftScenarios />} />
-        <Route path="integration-tracking" element={<IntegrationTracking />} />
+        <Route path="servicenow" element={<ServiceNowScenarios />} />
+        <Route path="servicenow-tracking" element={<ServiceNowTracking />} />
       </Route>
       <Route path="*" element={<Navigate to="/home" replace />} />
     </Routes>
