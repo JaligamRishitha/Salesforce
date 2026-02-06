@@ -5,7 +5,6 @@ import {
   QuestionMarkCircleIcon,
   Cog6ToothIcon,
   BellIcon,
-  UserCircleIcon,
 } from '@heroicons/react/24/outline';
 import { useAuth } from '../context/AuthContext';
 import { dashboardAPI } from '../services/api';
@@ -72,18 +71,7 @@ export default function TopBar() {
     <header className="fixed top-0 left-[72px] right-0 h-14 bg-sf-blue-500 flex items-center justify-between px-4 z-40">
       {/* Logo */}
       <div className="flex items-center">
-        <svg className="w-10 h-10" viewBox="0 0 40 40" fill="none">
-          <path
-            d="M20 5C11.7 5 5 11.7 5 20s6.7 15 15 15 15-6.7 15-15S28.3 5 20 5z"
-            fill="#00A1E0"
-          />
-          <path
-            d="M16 14c0-2.2 1.8-4 4-4s4 1.8 4 4-1.8 4-4 4-4-1.8-4-4zm-4 12c0-4.4 3.6-8 8-8s8 3.6 8 8"
-            stroke="white"
-            strokeWidth="2"
-            fill="none"
-          />
-        </svg>
+        <img src="/salesforce-2.svg" alt="Salesforce" className="h-12" />
       </div>
 
       {/* Search */}

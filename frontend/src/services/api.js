@@ -50,6 +50,7 @@ export const accountsAPI = {
   listRequests: (params) => api.get('/api/accounts/requests', { params }),
   approveRequest: (requestId) => api.post(`/api/accounts/requests/${requestId}/approve`),
   mulesoftAccept: (requestId) => api.post(`/api/accounts/requests/${requestId}/mulesoft-accept`),
+  deleteRequest: (requestId) => api.delete(`/api/accounts/requests/${requestId}`),
 };
 
 // Contacts

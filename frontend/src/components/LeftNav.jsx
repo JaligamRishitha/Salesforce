@@ -32,7 +32,6 @@ const navItems = [
   { path: '/home', label: 'Home', Icon: HomeIcon, IconSolid: HomeIconSolid },
   { path: '/contacts', label: 'Contacts', Icon: UserGroupIcon, IconSolid: UserGroupIconSolid },
   { path: '/accounts', label: 'Accounts', Icon: BuildingOfficeIcon, IconSolid: BuildingOfficeIconSolid },
-  { path: '/requests', label: 'Requests', Icon: ClipboardDocumentListIcon, IconSolid: ClipboardDocumentListIconSolid },
   { path: '/sales', label: 'Sales', Icon: ChartBarIcon, IconSolid: ChartBarIconSolid },
   { path: '/service', label: 'Service', Icon: HeartIcon, IconSolid: HeartIconSolid },
   { path: '/service-management', label: 'Service Mgmt', Icon: Squares2X2Icon, IconSolid: Squares2X2IconSolid },

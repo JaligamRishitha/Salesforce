@@ -6,7 +6,7 @@ import os
 import time
 
 from .database import engine, Base
-from .routes import auth, accounts, contacts, leads, opportunities, cases, dashboard, activities, logs, service, platform_events, sap_integration, mulesoft, mulesoft_integration
+from .routes import auth, accounts, contacts, leads, opportunities, cases, dashboard, activities, logs, service, platform_events, sap_integration, mulesoft, mulesoft_integration, integration_tracking
 from .logger import log_action
 
 
@@ -107,6 +107,7 @@ app.include_router(platform_events.router)
 app.include_router(sap_integration.router)
 app.include_router(mulesoft.router)
 app.include_router(mulesoft_integration.router)
+app.include_router(integration_tracking.router)
 
 
 @app.get("/")

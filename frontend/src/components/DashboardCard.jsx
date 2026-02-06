@@ -145,8 +145,8 @@ export default function DashboardCard({
           </div>
         ) : filteredItems.length > 0 ? (
           <ul className="divide-y divide-gray-100">
-            {filteredItems.slice(0, 5).map((item) => (
-              <li key={item.id}>
+            {filteredItems.slice(0, 5).map((item, index) => (
+              <li key={`dash-${title}-${item.id}-${index}`}>
                 <button
                   type="button"
                   onClick={() => handleItemClick(item)}

@@ -107,10 +107,20 @@ export default function Service() {
     }
   }, [activeTab]);
 
+  // Helper to deduplicate arrays by ID
+  const deduplicateById = (items) => {
+    const seen = new Set();
+    return (items || []).filter(item => {
+      if (seen.has(item.id)) return false;
+      seen.add(item.id);
+      return true;
+    });
+  };
+
   const loadAccounts = async () => {
     try {
       const response = await accountsAPI.list({ page_size: 100 });
-      setAccounts(response.data.items || []);
+      setAccounts(deduplicateById(response.data.items));
     } catch (error) {
       console.error('Failed to load accounts:', error);
     }
@@ -120,10 +130,10 @@ export default function Service() {
     setLoadingAppointments(true);
     try {
       const response = await serviceAPI.listAppointments({ page_size: 50 });
-      setAppointments(response.data.items || []);
+      setAppointments(deduplicateById(response.data?.items || []));
     } catch (error) {
       console.error('Failed to load appointments:', error);
-      toast.error('Failed to load appointments');
+      // Don't show error toast - endpoint might not be available on server
     } finally {
       setLoadingAppointments(false);
     }
@@ -133,7 +143,7 @@ export default function Service() {
     setLoadingWorkOrders(true);
     try {
       const response = await serviceAPI.listWorkOrders({ page_size: 50 });
-      setWorkOrders(response.data?.items || []);
+      setWorkOrders(deduplicateById(response.data?.items));
     } catch (error) {
       console.error('Failed to load work orders:', error);
       // Don't show error toast - endpoint might not exist yet
@@ -241,10 +251,33 @@ export default function Service() {
       scheduled_end: '',
       priority: 'Normal',
       location: '',
-      required_skills: '',
-      required_parts: '',
     });
+    const [parts, setParts] = useState([]);
+    const [newPartName, setNewPartName] = useState('');
+    const [newPartQty, setNewPartQty] = useState('');
+    const [newPartUnit, setNewPartUnit] = useState('units');
     const [submitting, setSubmitting] = useState(false);
+
+    const unitOptions = ['units', 'meters', 'pieces', 'kits', 'sets', 'rolls', 'boxes', 'kg', 'liters'];
+
+    const handleAddPart = () => {
+      if (!newPartName.trim()) {
+        toast.error('Enter part/material name');
+        return;
+      }
+      if (!newPartQty || parseInt(newPartQty) <= 0) {
+        toast.error('Enter valid quantity');
+        return;
+      }
+      setParts([...parts, { name: newPartName.trim(), quantity: parseInt(newPartQty), unit: newPartUnit }]);
+      setNewPartName('');
+      setNewPartQty('');
+      setNewPartUnit('units');
+    };
+
+    const handleRemovePart = (index) => {
+      setParts(parts.filter((_, i) => i !== index));
+    };
 
     const handleSubmit = async (e) => {
       e.preventDefault();
@@ -254,9 +287,15 @@ export default function Service() {
       }
       setSubmitting(true);
       try {
+        // Format parts as string for API
+        const partsWithQuantity = parts
+          .map(p => `${p.name} (${p.quantity} ${p.unit})`)
+          .join(', ');
+
         await serviceAPI.createAppointment({
           ...formData,
           account_id: formData.account_id ? parseInt(formData.account_id) : null,
+          required_parts: partsWithQuantity,
         });
         toast.success('Service appointment created successfully');
         setShowAppointmentModal(false);
@@ -372,28 +411,74 @@ export default function Service() {
                 />
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Required Skills</label>
+
+            {/* Required Parts with Quantity */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Required Parts / Materials</label>
+
+              {/* Add new part */}
+              <div className="flex gap-2 mb-3">
                 <input
                   type="text"
-                  value={formData.required_skills}
-                  onChange={(e) => setFormData({...formData, required_skills: e.target.value})}
-                  className="w-full border rounded-md px-3 py-2"
-                  placeholder="e.g., Electrical, HVAC"
+                  value={newPartName}
+                  onChange={(e) => setNewPartName(e.target.value)}
+                  className="flex-1 border rounded-md px-3 py-2 text-sm"
+                  placeholder="Part/Material name (e.g., XLPE Cable, Transformer)"
                 />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Required Parts</label>
                 <input
-                  type="text"
-                  value={formData.required_parts}
-                  onChange={(e) => setFormData({...formData, required_parts: e.target.value})}
-                  className="w-full border rounded-md px-3 py-2"
-                  placeholder="e.g., Transformer, Cables"
+                  type="number"
+                  min="1"
+                  value={newPartQty}
+                  onChange={(e) => setNewPartQty(e.target.value)}
+                  className="w-20 border rounded-md px-3 py-2 text-sm"
+                  placeholder="Qty"
                 />
+                <select
+                  value={newPartUnit}
+                  onChange={(e) => setNewPartUnit(e.target.value)}
+                  className="w-24 border rounded-md px-2 py-2 text-sm"
+                >
+                  {unitOptions.map(unit => (
+                    <option key={unit} value={unit}>{unit}</option>
+                  ))}
+                </select>
+                <button
+                  type="button"
+                  onClick={handleAddPart}
+                  className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 text-sm"
+                >
+                  Add
+                </button>
               </div>
+
+              {/* Parts list */}
+              {parts.length > 0 && (
+                <div className="border rounded-md bg-gray-50 divide-y">
+                  {parts.map((part, index) => (
+                    <div key={index} className="flex items-center justify-between p-2">
+                      <div className="flex items-center gap-3">
+                        <span className="text-sm font-medium text-gray-700">{part.name}</span>
+                        <span className="px-2 py-0.5 bg-blue-100 text-blue-800 text-xs rounded-full">
+                          {part.quantity} {part.unit}
+                        </span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => handleRemovePart(index)}
+                        className="text-red-500 hover:text-red-700 p-1"
+                      >
+                        <XMarkIcon className="w-4 h-4" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {parts.length === 0 && (
+                <p className="text-sm text-gray-500 italic">No parts added yet. Add parts/materials required for this appointment.</p>
+              )}
             </div>
+
             <div className="flex justify-end gap-3 pt-4 border-t">
               <button
                 type="button"
@@ -605,7 +690,7 @@ export default function Service() {
             </thead>
             <tbody className="divide-y divide-gray-200">
               {appointments.map(apt => (
-                <tr key={apt.id} className="hover:bg-gray-50">
+                <tr key={`svc-apt-${apt.id}`} className="hover:bg-gray-50">
                   <td className="px-4 py-3 text-sm font-medium text-blue-600">{apt.appointment_number}</td>
                   <td className="px-4 py-3 text-sm">{apt.subject}</td>
                   <td className="px-4 py-3 text-sm">{apt.appointment_type}</td>
@@ -677,7 +762,7 @@ export default function Service() {
             </thead>
             <tbody className="divide-y divide-gray-200">
               {workOrders.map(wo => (
-                <tr key={wo.id} className="hover:bg-gray-50">
+                <tr key={`svc-wo-${wo.id}`} className="hover:bg-gray-50">
                   <td className="px-4 py-3 text-sm font-medium text-blue-600">{wo.work_order_number}</td>
                   <td className="px-4 py-3 text-sm">{wo.subject}</td>
                   <td className="px-4 py-3 text-sm">{wo.account_name || '-'}</td>

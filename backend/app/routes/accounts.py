@@ -450,6 +450,25 @@ async def reject_account_request(
     return account_request_to_response(request)
 
 
+@router.delete("/requests/{request_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_account_request(
+    request_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Delete an account creation request."""
+    success = crud.delete_account_request(db, request_id)
+    if not success:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Request not found")
+
+    log_action(
+        action_type="ACCOUNT_REQUEST_DELETED",
+        user=current_user.username,
+        details=f"Deleted account request {request_id}",
+        status="success",
+    )
+
+
 @router.get("/{account_id}", response_model=schemas.AccountResponse)
 async def get_account(
     account_id: int,

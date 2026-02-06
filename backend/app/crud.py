@@ -59,7 +59,7 @@ def get_accounts(
     sort_by: str = "created_at",
     sort_order: str = "desc"
 ) -> Tuple[List[models.Account], int]:
-    query = db.query(models.Account).options(joinedload(models.Account.owner))
+    query = db.query(models.Account).options(joinedload(models.Account.owner)).distinct()
 
     # Only show accounts that are effectively approved:
     # - accounts with no requests (legacy data), OR
@@ -93,7 +93,14 @@ def get_accounts(
         query = query.order_by(getattr(models.Account, sort_by, models.Account.created_at))
 
     accounts = query.offset(skip).limit(limit).all()
-    return accounts, total
+    # Deduplicate by ID (in case of any join-related duplicates)
+    seen_ids = set()
+    unique_accounts = []
+    for account in accounts:
+        if account.id not in seen_ids:
+            seen_ids.add(account.id)
+            unique_accounts.append(account)
+    return unique_accounts, total
 
 
 def create_account(db: Session, account: schemas.AccountCreate) -> models.Account:
@@ -244,6 +251,27 @@ def reject_account_request(
     db.commit()
     db.refresh(request)
     return request
+
+
+def delete_account_request(db: Session, request_id: int) -> bool:
+    request = db.query(models.AccountCreationRequest).filter(models.AccountCreationRequest.id == request_id).first()
+    if request:
+        db.delete(request)
+        db.commit()
+        return True
+    return False
+
+
+def delete_account_requests_by_name(db: Session, names: list[str]) -> int:
+    """Delete account requests by name. Returns count of deleted records."""
+    requests = db.query(models.AccountCreationRequest).filter(
+        models.AccountCreationRequest.name.in_(names)
+    ).all()
+    count = len(requests)
+    for req in requests:
+        db.delete(req)
+    db.commit()
+    return count
 
 
 def update_account(db: Session, account_id: int, account: schemas.AccountUpdate) -> Optional[models.Account]:

@@ -118,7 +118,7 @@ export default function RecordDetail({ objectType, api }) {
     } catch (error) {
       console.error('Failed to load record:', error);
       const errorMsg = error.response?.status === 404
-        ? `${config.label} not found`
+        ? `${config.label} not found. It may have been deleted or not yet approved.`
         : `Failed to load ${config.label.toLowerCase()}`;
       toast.error(errorMsg);
 

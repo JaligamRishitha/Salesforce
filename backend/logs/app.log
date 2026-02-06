@@ -1882,3 +1882,9 @@
 [2026-02-01 17:06:53] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /debug/users | Status: 404 | Time: 0.00s | STATUS: success
 [2026-02-01 17:07:16] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /health | STATUS: pending
 [2026-02-01 17:07:16] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /health | Status: 404 | Time: 0.00s | STATUS: success
+[2026-02-06 13:49:56] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /api/auth/me | STATUS: pending
+[2026-02-06 13:49:56] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /api/auth/me | STATUS: pending
+[2026-02-06 13:49:56] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /api/auth/me | Status: 401 | Time: 0.05s | STATUS: success
+[2026-02-06 13:49:56] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /api/auth/me | Status: 401 | Time: 0.01s | STATUS: success
+[2026-02-06 13:50:20] INFO | ACTION: API_REQUEST | USER: anonymous | DETAILS: GET /docs | STATUS: pending
+[2026-02-06 13:50:20] INFO | ACTION: API_RESPONSE | USER: anonymous | DETAILS: GET /docs | Status: 200 | Time: 0.00s | STATUS: success
