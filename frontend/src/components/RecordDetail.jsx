@@ -117,7 +117,11 @@ export default function RecordDetail({ objectType, api }) {
       setRecord(response.data);
     } catch (error) {
       console.error('Failed to load record:', error);
-      toast.error('Failed to load record');
+      if (error.response?.status === 404) {
+        toast.error(`${config?.label || 'Record'} not found. It may have been deleted or not yet approved.`);
+      } else {
+        toast.error('Failed to load record');
+      }
       navigate(`/${objectType}s`);
     } finally {
       setLoading(false);

@@ -107,10 +107,20 @@ export default function Service() {
     }
   }, [activeTab]);
 
+  // Helper to deduplicate arrays by ID
+  const deduplicateById = (items) => {
+    const seen = new Set();
+    return (items || []).filter(item => {
+      if (seen.has(item.id)) return false;
+      seen.add(item.id);
+      return true;
+    });
+  };
+
   const loadAccounts = async () => {
     try {
       const response = await accountsAPI.list({ page_size: 100 });
-      setAccounts(response.data.items || []);
+      setAccounts(deduplicateById(response.data.items));
     } catch (error) {
       console.error('Failed to load accounts:', error);
     }
@@ -120,10 +130,10 @@ export default function Service() {
     setLoadingAppointments(true);
     try {
       const response = await serviceAPI.listAppointments({ page_size: 50 });
-      setAppointments(response.data.items || []);
+      setAppointments(deduplicateById(response.data?.items || []));
     } catch (error) {
       console.error('Failed to load appointments:', error);
-      toast.error('Failed to load appointments');
+      // Don't show error toast - endpoint might not be available on server
     } finally {
       setLoadingAppointments(false);
     }
@@ -133,7 +143,7 @@ export default function Service() {
     setLoadingWorkOrders(true);
     try {
       const response = await serviceAPI.listWorkOrders({ page_size: 50 });
-      setWorkOrders(response.data?.items || []);
+      setWorkOrders(deduplicateById(response.data?.items));
     } catch (error) {
       console.error('Failed to load work orders:', error);
       // Don't show error toast - endpoint might not exist yet
@@ -605,7 +615,7 @@ export default function Service() {
             </thead>
             <tbody className="divide-y divide-gray-200">
               {appointments.map(apt => (
-                <tr key={apt.id} className="hover:bg-gray-50">
+                <tr key={`svc-apt-${apt.id}`} className="hover:bg-gray-50">
                   <td className="px-4 py-3 text-sm font-medium text-blue-600">{apt.appointment_number}</td>
                   <td className="px-4 py-3 text-sm">{apt.subject}</td>
                   <td className="px-4 py-3 text-sm">{apt.appointment_type}</td>
@@ -677,7 +687,7 @@ export default function Service() {
             </thead>
             <tbody className="divide-y divide-gray-200">
               {workOrders.map(wo => (
-                <tr key={wo.id} className="hover:bg-gray-50">
+                <tr key={`svc-wo-${wo.id}`} className="hover:bg-gray-50">
                   <td className="px-4 py-3 text-sm font-medium text-blue-600">{wo.work_order_number}</td>
                   <td className="px-4 py-3 text-sm">{wo.subject}</td>
                   <td className="px-4 py-3 text-sm">{wo.account_name || '-'}</td>

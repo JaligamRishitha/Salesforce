@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ArrowPathIcon } from '@heroicons/react/24/outline';
 import { accountsAPI } from '../services/api';
 import toast from 'react-hot-toast';
@@ -8,11 +8,21 @@ export default function AccountRequestsStatus() {
   const [loading, setLoading] = useState(true);
   const [expandedRow, setExpandedRow] = useState(null);
 
+  // Helper to deduplicate arrays by ID
+  const deduplicateById = (items) => {
+    const seen = new Set();
+    return items.filter(item => {
+      if (seen.has(item.id)) return false;
+      seen.add(item.id);
+      return true;
+    });
+  };
+
   const loadRequests = async () => {
     setLoading(true);
     try {
       const response = await accountsAPI.listRequests({ page_size: 50 });
-      setItems(response.data.items || []);
+      setItems(deduplicateById(response.data.items || []));
     } catch (error) {
       console.error('Failed to load requests:', error);
       toast.error('Failed to load requests');
@@ -104,9 +114,8 @@ export default function AccountRequestsStatus() {
                 {items.map((item) => {
                   const isExpanded = expandedRow === item.id;
                   return (
-                    <>
+                    <React.Fragment key={`request-${item.id}`}>
                       <tr
-                        key={item.id}
                         className="hover:bg-gray-50 cursor-pointer"
                         onClick={() => setExpandedRow(isExpanded ? null : item.id)}
                       >
@@ -156,7 +165,7 @@ export default function AccountRequestsStatus() {
                         </td>
                       </tr>
                       {isExpanded && (
-                        <tr key={`${item.id}-details`}>
+                        <tr>
                           <td colSpan="7" className="px-4 py-4 bg-gray-50">
                             <div className="grid grid-cols-2 gap-4 text-sm">
                               <div>
@@ -201,7 +210,7 @@ export default function AccountRequestsStatus() {
                           </td>
                         </tr>
                       )}
-                    </>
+                    </React.Fragment>
                   );
                 })}
               </tbody>

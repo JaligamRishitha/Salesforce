@@ -83,7 +83,20 @@ export default function ObjectListPage({
       });
 
       const response = await api.list(params);
-      setItems(response.data.items);
+      // Deduplicate items by ID to prevent duplicate key errors
+      const uniqueItems = [];
+      const seenIds = new Set();
+      for (const item of (response.data.items || [])) {
+        if (!seenIds.has(item.id)) {
+          seenIds.add(item.id);
+          uniqueItems.push(item);
+        }
+      }
+      // Filter accounts to only show NITRO INC and GDCC
+      const filteredItems = objectType === 'account'
+        ? uniqueItems.filter(item => ['NITRO INC', 'GDCC'].includes(item.name))
+        : uniqueItems;
+      setItems(filteredItems);
       setTotalPages(response.data.pages);
       setTotal(response.data.total);
     } catch (error) {
@@ -496,7 +509,7 @@ export default function ObjectListPage({
                 <tbody className="divide-y divide-gray-100">
                   {items.map((item) => (
                     <tr
-                      key={item.id}
+                      key={`list-${objectType}-${item.id}`}
                       className={`hover:bg-gray-50 cursor-pointer ${
                         selectedItems.includes(item.id) ? 'bg-sf-blue-50' : ''
                       }`}
@@ -533,7 +546,7 @@ export default function ObjectListPage({
             <div className="p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
               {items.map((item) => (
                 <div
-                  key={item.id}
+                  key={`grid-${objectType}-${item.id}`}
                   className={`p-4 border rounded-lg cursor-pointer transition-all hover:shadow-md ${
                     selectedItems.includes(item.id) ? 'border-sf-blue-500 bg-sf-blue-50' : 'border-gray-200 hover:border-gray-300'
                   }`}

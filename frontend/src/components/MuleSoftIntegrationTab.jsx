@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ArrowPathIcon } from '@heroicons/react/24/outline';
 import { accountsAPI } from '../services/api';
 import toast from 'react-hot-toast';
@@ -14,10 +14,20 @@ export default function MuleSoftIntegrationTab() {
     return () => clearInterval(interval);
   }, []);
 
+  // Helper to deduplicate arrays by ID
+  const deduplicateById = (items) => {
+    const seen = new Set();
+    return items.filter(item => {
+      if (seen.has(item.id)) return false;
+      seen.add(item.id);
+      return true;
+    });
+  };
+
   const loadRequests = async () => {
     try {
       const response = await accountsAPI.listRequests({ page_size: 50 });
-      setRequests(response.data.items || []);
+      setRequests(deduplicateById(response.data.items || []));
       setLoading(false);
     } catch (error) {
       console.error('Failed to load requests:', error);
@@ -129,9 +139,8 @@ export default function MuleSoftIntegrationTab() {
             {requests.map(req => {
               const isExpanded = expandedRow === req.id;
               return (
-                <>
+                <React.Fragment key={`mulesoft-${req.id}`}>
                   <tr
-                    key={req.id}
                     className="border-t hover:bg-gray-50 cursor-pointer"
                     onClick={() => setExpandedRow(isExpanded ? null : req.id)}
                   >
@@ -166,7 +175,7 @@ export default function MuleSoftIntegrationTab() {
                     <td className="p-3 text-xs text-gray-500">{new Date(req.created_at).toLocaleString()}</td>
                   </tr>
                   {isExpanded && (
-                    <tr key={`${req.id}-details`}>
+                    <tr>
                       <td colSpan="7" className="px-4 py-4 bg-gray-50">
                         <div className="grid grid-cols-3 gap-4 text-sm">
                           <div>
@@ -217,7 +226,7 @@ export default function MuleSoftIntegrationTab() {
                       </td>
                     </tr>
                   )}
-                </>
+                </React.Fragment>
               );
             })}
           </tbody>

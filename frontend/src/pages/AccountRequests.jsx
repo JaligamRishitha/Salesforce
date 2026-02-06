@@ -86,7 +86,7 @@ export default function AccountRequests() {
                 {items.map((item) => {
                   const pending = item.status === 'PENDING';
                   return (
-                    <tr key={item.id} className="hover:bg-gray-50">
+                    <tr key={`acct-req-${item.id}`} className="hover:bg-gray-50">
                       <td className="px-4 py-3 text-sm text-gray-700">{item.id}</td>
                       <td className="px-4 py-3 text-sm font-medium text-sf-blue-600">{item.name}</td>
                       <td className="px-4 py-3 text-sm text-gray-700">{item.status}</td>
