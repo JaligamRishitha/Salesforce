@@ -62,7 +62,7 @@ from datetime import datetime
 
 from ..database import get_db
 from ..auth import get_current_user
-from ..db_models import User, ServiceAccount, ServiceLevelAgreement, Quotation, Invoice, WarrantyExtension, ServiceAppointment, SchedulingRequest, WorkOrder
+from ..db_models import User, ServiceAccount, ServiceLevelAgreement, Quotation, Invoice, WarrantyExtension, ServiceAppointment, SchedulingRequest, WorkOrder, AppointmentRequest, AppointmentRequestStatus, WorkOrderRequest, WorkOrderRequestStatus
 from ..logger import log_action
 from ..servicenow import get_servicenow_client
 from ..sap import get_sap_client
@@ -427,43 +427,239 @@ async def list_service_appointments(
     return appointments
 
 
+@router.get("/appointments/{appointment_id}/available-technicians")
+async def get_available_technicians_for_appointment(
+    appointment_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Get available technicians from SAP HR for an appointment"""
+
+    # Get appointment details
+    appointment = db.query(ServiceAppointment).filter(ServiceAppointment.id == appointment_id).first()
+    if not appointment:
+        raise HTTPException(status_code=404, detail="Service appointment not found")
+
+    # Query SAP HR for available technicians
+    sap_client = get_sap_client()
+
+    # Parse required skills if provided
+    skills = []
+    if appointment.required_skills:
+        skills = [skill.strip() for skill in appointment.required_skills.split(",")]
+
+    # Get scheduled date
+    scheduled_date = appointment.scheduled_start.isoformat() if appointment.scheduled_start else None
+
+    # Query SAP HR
+    result = await sap_client.get_available_technicians(
+        scheduled_date=scheduled_date,
+        skills_required=skills if skills else None,
+        location=appointment.location
+    )
+
+    if not result.get("success"):
+        log_action(
+            action_type="SAP_HR_QUERY_FAILED",
+            user=current_user.username,
+            details=f"Failed to get technicians for appointment {appointment.appointment_number}: {result.get('error')}",
+            status="error"
+        )
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to query SAP HR: {result.get('error')}"
+        )
+
+    log_action(
+        action_type="SAP_HR_QUERY_SUCCESS",
+        user=current_user.username,
+        details=f"Retrieved {result.get('total_count', 0)} available technicians from SAP HR for appointment {appointment.appointment_number}",
+        status="success"
+    )
+
+    return {
+        "appointment_id": appointment_id,
+        "appointment_number": appointment.appointment_number,
+        "technicians": result.get("technicians", []),
+        "total_count": result.get("total_count", 0),
+        "filters_applied": {
+            "scheduled_date": scheduled_date,
+            "skills_required": skills,
+            "location": appointment.location
+        }
+    }
+
+
+@router.get("/appointments/{appointment_id}/check-parts")
+async def check_parts_for_appointment(
+    appointment_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Check parts availability in SAP Inventory for an appointment"""
+
+    # Get appointment details
+    appointment = db.query(ServiceAppointment).filter(ServiceAppointment.id == appointment_id).first()
+    if not appointment:
+        raise HTTPException(status_code=404, detail="Service appointment not found")
+
+    # Parse required parts if provided
+    if not appointment.required_parts:
+        return {
+            "appointment_id": appointment_id,
+            "appointment_number": appointment.appointment_number,
+            "all_available": True,
+            "parts_status": [],
+            "message": "No parts required for this appointment"
+        }
+
+    # Parse parts (assuming format: "PART-001:2, PART-002:1")
+    parts = []
+    for part_str in appointment.required_parts.split(","):
+        part_str = part_str.strip()
+        if ":" in part_str:
+            part_number, quantity = part_str.split(":")
+            parts.append({
+                "part_number": part_number.strip(),
+                "quantity": int(quantity.strip())
+            })
+        else:
+            parts.append({
+                "part_number": part_str,
+                "quantity": 1
+            })
+
+    # Query SAP Inventory
+    sap_client = get_sap_client()
+    result = await sap_client.check_parts_availability(parts)
+
+    if not result.get("success"):
+        log_action(
+            action_type="SAP_INVENTORY_CHECK_FAILED",
+            user=current_user.username,
+            details=f"Failed to check parts for appointment {appointment.appointment_number}: {result.get('error')}",
+            status="error"
+        )
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to query SAP Inventory: {result.get('error')}"
+        )
+
+    log_action(
+        action_type="SAP_INVENTORY_CHECK_SUCCESS",
+        user=current_user.username,
+        details=f"Parts availability checked for appointment {appointment.appointment_number}: {'All available' if result.get('all_available') else 'Some unavailable'}",
+        status="success" if result.get("all_available") else "warning"
+    )
+
+    return {
+        "appointment_id": appointment_id,
+        "appointment_number": appointment.appointment_number,
+        "all_available": result.get("all_available", False),
+        "parts_status": result.get("parts_status", []),
+        "checked_at": result.get("checked_at")
+    }
+
+
+@router.get("/appointment-requests/{request_id}/available-technicians")
+async def get_available_technicians_for_request(
+    request_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Get available technicians from SAP HR for an appointment request (before appointment is created)"""
+
+    # Get appointment request details
+    request = db.query(AppointmentRequest).filter(AppointmentRequest.id == request_id).first()
+    if not request:
+        raise HTTPException(status_code=404, detail="Appointment request not found")
+
+    # Extract data from requested payload
+    payload = request.requested_payload
+
+    # Query SAP HR for available technicians
+    sap_client = get_sap_client()
+
+    # Parse required skills if provided
+    skills = []
+    if payload.get("required_skills"):
+        skills = [skill.strip() for skill in payload["required_skills"].split(",")]
+
+    # Get scheduled date
+    scheduled_date = payload.get("scheduled_start")
+
+    # Query SAP HR
+    result = await sap_client.get_available_technicians(
+        scheduled_date=scheduled_date,
+        skills_required=skills if skills else None,
+        location=payload.get("location")
+    )
+
+    if not result.get("success"):
+        log_action(
+            action_type="SAP_HR_QUERY_FAILED",
+            user=current_user.username,
+            details=f"Failed to get technicians for appointment request {request_id}: {result.get('error')}",
+            status="error"
+        )
+        raise HTTPException(status_code=500, detail=f"SAP HR query failed: {result.get('error')}")
+
+    log_action(
+        action_type="SAP_HR_TECHNICIANS_FETCHED",
+        user=current_user.username,
+        details=f"Fetched {len(result.get('technicians', []))} technicians for appointment request {request_id}",
+        status="success"
+    )
+
+    return {
+        "success": True,
+        "technicians": result.get("technicians", []),
+        "queried_at": result.get("queried_at")
+    }
+
+
 @router.post("/appointments", status_code=status.HTTP_201_CREATED)
 async def create_service_appointment(
     data: ServiceAppointmentCreate,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    """Create a new service appointment and ServiceNow ticket"""
+    """Create a new service appointment request and send to ServiceNow for approval"""
     import uuid
 
-    # Generate appointment number
-    appointment_number = f"APT-{datetime.now().strftime('%Y%m%d')}-{str(uuid.uuid4())[:8].upper()}"
+    # Generate correlation ID
+    correlation_id = str(uuid.uuid4())
 
-    # Create appointment
-    appointment = ServiceAppointment(
-        appointment_number=appointment_number,
-        account_id=data.account_id,
-        case_id=data.case_id,
+    # Store the requested appointment data as JSON
+    requested_payload = {
+        "account_id": data.account_id,
+        "case_id": data.case_id,
+        "subject": data.subject,
+        "description": data.description,
+        "appointment_type": data.appointment_type,
+        "scheduled_start": data.scheduled_start,
+        "scheduled_end": data.scheduled_end,
+        "priority": data.priority,
+        "location": data.location,
+        "required_skills": data.required_skills,
+        "required_parts": data.required_parts
+    }
+
+    # Create appointment request (not the actual appointment yet)
+    appointment_request = AppointmentRequest(
         subject=data.subject,
-        description=data.description,
-        appointment_type=data.appointment_type,
-        scheduled_start=datetime.fromisoformat(data.scheduled_start) if data.scheduled_start else None,
-        scheduled_end=datetime.fromisoformat(data.scheduled_end) if data.scheduled_end else None,
-        priority=data.priority,
-        location=data.location,
-        required_skills=data.required_skills,
-        required_parts=data.required_parts,
-        status="Pending Agent Review",
-        owner_id=current_user.id,
+        requested_payload=requested_payload,
+        status=AppointmentRequestStatus.PENDING.value,
+        correlation_id=correlation_id,
+        requested_by_id=current_user.id,
         created_at=datetime.now()
     )
 
-    db.add(appointment)
+    db.add(appointment_request)
     db.commit()
-    db.refresh(appointment)
+    db.refresh(appointment_request)
 
-    # Create ServiceNow ticket
-    correlation_id = str(uuid.uuid4())
+    # Create ServiceNow ticket for approval
     servicenow_client = get_servicenow_client()
 
     # Priority mapping: Normal=3, High=2, Urgent=1
@@ -473,7 +669,7 @@ async def create_service_appointment(
     ticket_description = f"""
 Service Appointment Request from Salesforce
 
-Appointment Number: {appointment_number}
+Request ID: {appointment_request.id}
 Type: {data.appointment_type}
 Location: {data.location or 'Not specified'}
 Required Skills: {data.required_skills or 'Not specified'}
@@ -484,48 +680,48 @@ Scheduled End: {data.scheduled_end or 'Not specified'}
 
 Description:
 {data.description or 'No description provided'}
+
+Please approve this request to create the service appointment.
     """
 
     ticket_result = await servicenow_client.create_ticket(
-        short_description=f"Service Appointment: {data.subject}",
+        short_description=f"Service Appointment Request: {data.subject}",
         description=ticket_description.strip(),
         category="request",
         priority=snow_priority,
         custom_fields={
-            "u_appointment_number": appointment_number,
-            "u_source_system": "Salesforce",
-            "u_request_type": "Service Appointment"
+            "u_request_type": "Service Appointment",  # Keep for backwards compatibility
+            "correlation_id": correlation_id,
+            "source_system": "Salesforce",
+            "source_request_id": str(appointment_request.id),
+            "source_request_type": "Service Appointment"
         }
     )
 
-    # Create scheduling request to track ServiceNow ticket
-    scheduling_request = SchedulingRequest(
-        appointment_id=appointment.id,
-        appointment_number=appointment.appointment_number,
-        request_type="SCHEDULE",
-        status="PENDING_AGENT_REVIEW",
-        correlation_id=correlation_id,
-        mulesoft_transaction_id=ticket_result.get("ticket_number") if ticket_result.get("success") else None,
-        requested_by_id=current_user.id,
-        created_at=datetime.now()
-    )
+    # Update request with ServiceNow ticket info
+    if ticket_result.get("success"):
+        appointment_request.servicenow_ticket_id = ticket_result.get("ticket_number")
+        appointment_request.servicenow_status = "submitted"
+        appointment_request.integration_status = "SENT_TO_SERVICENOW"
+    else:
+        appointment_request.servicenow_status = "failed"
+        appointment_request.integration_status = "FAILED"
+        appointment_request.error_message = ticket_result.get("error", "Unknown error")
 
-    db.add(scheduling_request)
     db.commit()
-    db.refresh(scheduling_request)
+    db.refresh(appointment_request)
 
     log_action(
-        action_type="CREATE_SERVICE_APPOINTMENT",
+        action_type="CREATE_APPOINTMENT_REQUEST",
         user=current_user.username,
-        details=f"Service appointment {appointment.appointment_number} created, ServiceNow ticket: {ticket_result.get('ticket_number', 'N/A')}",
+        details=f"Appointment request #{appointment_request.id} created, ServiceNow ticket: {ticket_result.get('ticket_number', 'N/A')}",
         status="success"
     )
 
     return {
-        "appointment": appointment,
-        "scheduling_request": scheduling_request,
+        "request": appointment_request,
         "servicenow_ticket": ticket_result.get("ticket_number") if ticket_result.get("success") else None,
-        "message": "Service appointment created and ticket sent to ServiceNow for agent review"
+        "message": "Service appointment request created and sent to ServiceNow for approval"
     }
 
 
@@ -537,13 +733,13 @@ async def list_scheduling_requests(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    """List all scheduling requests (for Scenario 2 tab)"""
-    query = db.query(SchedulingRequest)
+    """List all appointment requests (for Scenario 2 tab)"""
+    query = db.query(AppointmentRequest)
 
     if status_filter:
-        query = query.filter(SchedulingRequest.status == status_filter)
+        query = query.filter(AppointmentRequest.status == status_filter)
 
-    requests = query.order_by(SchedulingRequest.created_at.desc()).offset(skip).limit(limit).all()
+    requests = query.order_by(AppointmentRequest.created_at.desc()).offset(skip).limit(limit).all()
     return requests
 
 
@@ -555,71 +751,138 @@ async def approve_scheduling_request(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    """Agent approves scheduling request and sends to SAP"""
+    """Agent approves appointment request, creates appointment, and sends to SAP"""
+    import uuid
 
-    scheduling_request = db.query(SchedulingRequest).filter(SchedulingRequest.id == request_id).first()
-    if not scheduling_request:
-        raise HTTPException(status_code=404, detail="Scheduling request not found")
+    # Get appointment request
+    appointment_request = db.query(AppointmentRequest).filter(AppointmentRequest.id == request_id).first()
+    if not appointment_request:
+        raise HTTPException(status_code=404, detail="Appointment request not found")
 
-    # Get appointment details
-    appointment = None
-    if scheduling_request.appointment_id:
-        appointment = db.query(ServiceAppointment).filter(ServiceAppointment.id == scheduling_request.appointment_id).first()
+    if appointment_request.status != AppointmentRequestStatus.PENDING.value:
+        raise HTTPException(status_code=400, detail=f"Request is not pending (current status: {appointment_request.status})")
+
+    # Extract requested data from payload
+    payload = appointment_request.requested_payload
+    required_parts = payload.get("required_parts")
+
+    # Check parts availability in SAP Inventory before creating maintenance order
+    parts_available = True
+    parts_check_result = None
+    if required_parts:
+        # Parse required parts
+        parts = []
+        for part_str in required_parts.split(","):
+            part_str = part_str.strip()
+            if ":" in part_str:
+                part_number, quantity = part_str.split(":")
+                parts.append({
+                    "part_number": part_number.strip(),
+                    "quantity": int(quantity.strip())
+                })
+            else:
+                parts.append({
+                    "part_number": part_str,
+                    "quantity": 1
+                })
+
+        # Check parts availability in SAP Inventory
+        sap_client = get_sap_client()
+        parts_check_result = await sap_client.check_parts_availability(parts)
+
+        if parts_check_result.get("success"):
+            parts_available = parts_check_result.get("all_available", False)
+            log_action(
+                action_type="SAP_INVENTORY_CHECK",
+                user=current_user.username,
+                details=f"Parts check for appointment request {request_id}: {'Available' if parts_available else 'Some parts unavailable'}",
+                status="success" if parts_available else "warning"
+            )
+        else:
+            log_action(
+                action_type="SAP_INVENTORY_CHECK_FAILED",
+                user=current_user.username,
+                details=f"Failed to check parts for appointment request {request_id}: {parts_check_result.get('error')}",
+                status="error"
+            )
+
+    # NOW create the actual ServiceAppointment (only after approval!)
+    appointment_number = f"APT-{datetime.now().strftime('%Y%m%d')}-{str(uuid.uuid4())[:8].upper()}"
+
+    appointment = ServiceAppointment(
+        appointment_number=appointment_number,
+        account_id=payload.get("account_id"),
+        case_id=payload.get("case_id"),
+        subject=payload.get("subject"),
+        description=payload.get("description"),
+        appointment_type=payload.get("appointment_type"),
+        scheduled_start=datetime.fromisoformat(payload["scheduled_start"]) if payload.get("scheduled_start") else None,
+        scheduled_end=datetime.fromisoformat(payload["scheduled_end"]) if payload.get("scheduled_end") else None,
+        priority=payload.get("priority"),
+        location=payload.get("location"),
+        required_skills=payload.get("required_skills"),
+        required_parts=payload.get("required_parts"),
+        assigned_technician_id=technician_id,
+        technician_name=technician_name,
+        status="Scheduled",
+        owner_id=appointment_request.requested_by_id,
+        created_at=datetime.now()
+    )
+
+    db.add(appointment)
+    db.commit()
+    db.refresh(appointment)
 
     # Send to SAP - Create Maintenance Order
     sap_client = get_sap_client()
     sap_order_data = {
         "order_type": "PM01",  # Maintenance order
-        "description": appointment.subject if appointment else "Service Appointment",
-        "priority": "3" if appointment and appointment.priority == "Normal" else "2",
-        "scheduled_start": appointment.scheduled_start.isoformat() if appointment and appointment.scheduled_start else None,
-        "scheduled_end": appointment.scheduled_end.isoformat() if appointment and appointment.scheduled_end else None,
+        "description": payload.get("subject", "Service Appointment"),
+        "priority": "3" if payload.get("priority") == "Normal" else "2",
+        "scheduled_start": payload.get("scheduled_start"),
+        "scheduled_end": payload.get("scheduled_end"),
         "technician": str(technician_id),
         "work_center": "WC01",
         "plant": "1000",
-        "notes": f"Service appointment from Salesforce. Appointment: {scheduling_request.appointment_number}. ServiceNow: {scheduling_request.mulesoft_transaction_id}"
+        "notes": f"Service appointment from Salesforce. Request ID: {request_id}. ServiceNow: {appointment_request.servicenow_ticket_id}. Parts available: {parts_available}"
     }
 
     sap_result = await sap_client.create_maintenance_order(sap_order_data)
 
-    # Update scheduling request
-    if sap_result.get("success"):
-        scheduling_request.status = "AGENT_APPROVED"
-        scheduling_request.integration_status = "SENT_TO_SAP"
-        scheduling_request.assigned_technician_id = technician_id
-        scheduling_request.technician_name = technician_name
-        scheduling_request.parts_available = True
-        scheduling_request.sap_hr_response = f"SAP Maintenance Order: {sap_result.get('order_number')}"
-        scheduling_request.sap_inventory_response = f"SAP Order ID: {sap_result.get('order_id')}"
-    else:
-        scheduling_request.status = "AGENT_APPROVED"
-        scheduling_request.integration_status = "SAP_ERROR"
-        scheduling_request.error_message = f"SAP integration failed: {sap_result.get('error')}"
+    # Update appointment request with results
+    appointment_request.status = AppointmentRequestStatus.COMPLETED.value if sap_result.get("success") else AppointmentRequestStatus.APPROVED.value
+    appointment_request.approved_by_id = current_user.id
+    appointment_request.created_appointment_id = appointment.id
+    appointment_request.integration_status = "SENT_TO_SAP" if sap_result.get("success") else "SAP_ERROR"
+    appointment_request.sap_hr_response = {"technician_id": technician_id, "technician_name": technician_name}
+    appointment_request.sap_inventory_response = parts_check_result
+    if not sap_result.get("success"):
+        appointment_request.error_message = f"SAP integration failed: {sap_result.get('error')}"
+    appointment_request.updated_at = datetime.now()
 
-    scheduling_request.updated_at = datetime.now()
-
-    # Update appointment with technician
-    if appointment:
-        appointment.assigned_technician_id = technician_id
-        appointment.technician_name = technician_name
-        appointment.status = "Assigned - Sent to SAP" if sap_result.get("success") else "Assigned - SAP Error"
-        appointment.updated_at = datetime.now()
+    # Update appointment status based on SAP result
+    appointment.status = "Scheduled - SAP Order Created" if sap_result.get("success") else "Scheduled - SAP Error"
+    appointment.updated_at = datetime.now()
 
     db.commit()
-    db.refresh(scheduling_request)
+    db.refresh(appointment_request)
+    db.refresh(appointment)
 
     log_action(
-        action_type="APPROVE_SCHEDULING",
+        action_type="APPROVE_APPOINTMENT_REQUEST",
         user=current_user.username,
-        details=f"Agent approved scheduling request {request_id}, assigned technician {technician_name}, SAP Order: {sap_result.get('order_number', 'N/A')}",
+        details=f"Appointment request #{request_id} approved, appointment {appointment_number} created, technician {technician_name} assigned, SAP Order: {sap_result.get('order_number', 'N/A')}",
         status="success" if sap_result.get("success") else "warning"
     )
 
     return {
-        "message": "Scheduling request approved by agent and sent to SAP successfully" if sap_result.get("success") else "Approved but SAP integration failed",
-        "scheduling_request": scheduling_request,
+        "message": "Appointment request approved and sent to SAP successfully" if sap_result.get("success") else "Approved but SAP integration failed",
+        "request": appointment_request,
+        "appointment": appointment,
         "sap_order_number": sap_result.get("order_number"),
-        "sap_order_id": sap_result.get("order_id")
+        "sap_order_id": sap_result.get("order_id"),
+        "parts_available": parts_available,
+        "parts_check": parts_check_result
     }
 
 
@@ -647,37 +910,38 @@ async def create_work_order(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    """Create a new work order and ServiceNow ticket"""
+    """Create a new work order request and send to ServiceNow for approval"""
     import uuid
 
-    # Generate work order number
-    work_order_number = f"WO-{datetime.now().strftime('%Y%m%d')}-{str(uuid.uuid4())[:8].upper()}"
+    # Generate correlation ID
     correlation_id = str(uuid.uuid4())
 
-    # Create work order with PENDING status (awaiting agent review)
-    work_order = WorkOrder(
-        work_order_number=work_order_number,
-        account_id=data.account_id,
-        case_id=data.case_id,
+    # Store the requested work order data as JSON
+    requested_payload = {
+        "account_id": data.account_id,
+        "case_id": data.case_id,
+        "subject": data.subject,
+        "description": data.description,
+        "priority": data.priority,
+        "service_type": data.service_type,
+        "product": data.product
+    }
+
+    # Create work order request (not the actual work order yet)
+    work_order_request = WorkOrderRequest(
         subject=data.subject,
-        description=data.description,
-        priority=data.priority,
-        service_type=data.service_type,
-        product=data.product,
-        status="PENDING_AGENT_REVIEW",
-        integration_status="SENT_TO_SERVICENOW",
-        entitlement_verified=False,  # Will be verified by agent/SAP
+        requested_payload=requested_payload,
+        status=WorkOrderRequestStatus.PENDING.value,
         correlation_id=correlation_id,
         requested_by_id=current_user.id,
-        owner_id=current_user.id,
         created_at=datetime.now()
     )
 
-    db.add(work_order)
+    db.add(work_order_request)
     db.commit()
-    db.refresh(work_order)
+    db.refresh(work_order_request)
 
-    # Create ServiceNow ticket
+    # Create ServiceNow ticket for approval
     servicenow_client = get_servicenow_client()
 
     # Priority mapping
@@ -687,7 +951,7 @@ async def create_work_order(
     ticket_description = f"""
 Work Order Request from Salesforce
 
-Work Order Number: {work_order_number}
+Request ID: {work_order_request.id}
 Service Type: {data.service_type}
 Product: {data.product or 'Not specified'}
 Priority: {data.priority}
@@ -696,38 +960,48 @@ Description:
 {data.description or 'No description provided'}
 
 Note: This work order requires entitlement verification before sending to SAP.
+Please approve this request to create the work order.
     """
 
     ticket_result = await servicenow_client.create_ticket(
-        short_description=f"Work Order: {data.subject}",
+        short_description=f"Work Order Request: {data.subject}",
         description=ticket_description.strip(),
         category="request",
         priority=snow_priority,
         custom_fields={
-            "u_work_order_number": work_order_number,
-            "u_source_system": "Salesforce",
-            "u_request_type": "Work Order",
-            "u_service_type": data.service_type
+            "u_request_type": "Work Order",  # Keep for backwards compatibility
+            "u_service_type": data.service_type,  # Keep for backwards compatibility
+            "correlation_id": correlation_id,
+            "source_system": "Salesforce",
+            "source_request_id": str(work_order_request.id),
+            "source_request_type": "Work Order"
         }
     )
 
-    # Store ServiceNow ticket number
+    # Update request with ServiceNow ticket info
     if ticket_result.get("success"):
-        work_order.mulesoft_transaction_id = ticket_result.get("ticket_number")
-        db.commit()
-        db.refresh(work_order)
+        work_order_request.servicenow_ticket_id = ticket_result.get("ticket_number")
+        work_order_request.servicenow_status = "submitted"
+        work_order_request.integration_status = "SENT_TO_SERVICENOW"
+    else:
+        work_order_request.servicenow_status = "failed"
+        work_order_request.integration_status = "FAILED"
+        work_order_request.error_message = ticket_result.get("error", "Unknown error")
+
+    db.commit()
+    db.refresh(work_order_request)
 
     log_action(
-        action_type="CREATE_WORK_ORDER",
+        action_type="CREATE_WORK_ORDER_REQUEST",
         user=current_user.username,
-        details=f"Work order {work_order.work_order_number} created, ServiceNow ticket: {ticket_result.get('ticket_number', 'N/A')}",
+        details=f"Work order request #{work_order_request.id} created, ServiceNow ticket: {ticket_result.get('ticket_number', 'N/A')}",
         status="success"
     )
 
     return {
-        "work_order": work_order,
+        "request": work_order_request,
         "servicenow_ticket": ticket_result.get("ticket_number") if ticket_result.get("success") else None,
-        "message": "Work order created and ticket sent to ServiceNow for agent review"
+        "message": "Work order request created and sent to ServiceNow for approval"
     }
 
 
@@ -740,13 +1014,13 @@ async def list_work_order_requests(
     current_user: User = Depends(get_current_user)
 ):
     """List all work order requests (for Scenario 3 tab)"""
-    query = db.query(WorkOrder)
+    query = db.query(WorkOrderRequest)
 
     if status_filter:
-        query = query.filter(WorkOrder.status == status_filter)
+        query = query.filter(WorkOrderRequest.status == status_filter)
 
-    work_orders = query.order_by(WorkOrder.created_at.desc()).offset(skip).limit(limit).all()
-    return work_orders
+    requests = query.order_by(WorkOrderRequest.created_at.desc()).offset(skip).limit(limit).all()
+    return requests
 
 
 @router.post("/workorder-requests/{request_id}/approve")
@@ -757,74 +1031,140 @@ async def approve_work_order_request(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    """Agent approves work order request and sends to SAP"""
+    """Agent approves work order request, creates work order, and sends to SAP"""
+    import uuid
 
-    work_order = db.query(WorkOrder).filter(WorkOrder.id == request_id).first()
-    if not work_order:
-        raise HTTPException(status_code=404, detail="Work order not found")
+    # Get work order request
+    work_order_request = db.query(WorkOrderRequest).filter(WorkOrderRequest.id == request_id).first()
+    if not work_order_request:
+        raise HTTPException(status_code=404, detail="Work order request not found")
 
-    # Agent reviews and verifies entitlement, then sends to SAP
-    if entitlement_verified:
-        # Send to SAP - Create Maintenance Order or Sales Order based on service type
-        sap_client = get_sap_client()
+    if work_order_request.status != WorkOrderRequestStatus.PENDING.value:
+        raise HTTPException(status_code=400, detail=f"Request is not pending (current status: {work_order_request.status})")
 
-        if work_order.service_type in ["Warranty", "Maintenance", "Repair"]:
-            # Create PM Maintenance Order
-            sap_order_data = {
-                "order_type": "PM01",
-                "description": work_order.subject,
-                "priority": "2" if work_order.priority == "High" else "3",
-                "notes": f"Work Order from Salesforce: {work_order.work_order_number}. ServiceNow: {work_order.mulesoft_transaction_id}. Service Type: {work_order.service_type}"
-            }
-            sap_result = await sap_client.create_maintenance_order(sap_order_data)
-        else:
-            # Create Sales Order for installation/other services
-            sap_order_data = {
-                "customer_id": f"CUST-{work_order.account_id}" if work_order.account_id else "CUST-DEFAULT",
-                "order_type": "ZOR",
-                "sales_org": "1000",
-                "distribution_channel": "10",
-                "division": "00",
-                "items": [{
-                    "material": f"SERVICE-{work_order.service_type.upper()}",
-                    "quantity": 1,
-                    "unit": "EA",
-                    "price": 0.00
-                }],
-                "reference": f"Salesforce Work Order {work_order.work_order_number}"
-            }
-            sap_result = await sap_client.create_sales_order(sap_order_data)
+    # Extract requested data from payload
+    payload = work_order_request.requested_payload
 
-        # Update work order based on SAP result
-        if sap_result.get("success"):
-            work_order.status = "AGENT_APPROVED"
-            work_order.entitlement_verified = True
-            work_order.entitlement_type = work_order.service_type
-            work_order.sap_order_id = sap_result.get("order_id")
-            work_order.sap_notification_id = sap_result.get("order_number")
-        work_order.integration_status = "SENT_TO_SAP"
-        work_order.error_message = None
-    else:
-        work_order.status = "AGENT_REJECTED"
-        work_order.entitlement_verified = False
-        work_order.integration_status = "REJECTED_BY_AGENT"
-        work_order.error_message = "Agent rejected: Entitlement verification failed - service type not covered or expired"
+    if not entitlement_verified:
+        # Reject the request
+        work_order_request.status = WorkOrderRequestStatus.REJECTED.value
+        work_order_request.approved_by_id = current_user.id
+        work_order_request.integration_status = "REJECTED_BY_AGENT"
+        work_order_request.error_message = "Agent rejected: Entitlement verification failed - service type not covered or expired"
+        work_order_request.updated_at = datetime.now()
 
-    work_order.updated_at = datetime.now()
+        db.commit()
+        db.refresh(work_order_request)
 
+        log_action(
+            action_type="REJECT_WORK_ORDER_REQUEST",
+            user=current_user.username,
+            details=f"Work order request #{request_id} rejected - Entitlement Failed",
+            status="warning"
+        )
+
+        return {
+            "message": "Work order request rejected by agent",
+            "request": work_order_request
+        }
+
+    # Agent approved - NOW create the actual WorkOrder
+    work_order_number = f"WO-{datetime.now().strftime('%Y%m%d')}-{str(uuid.uuid4())[:8].upper()}"
+
+    work_order = WorkOrder(
+        work_order_number=work_order_number,
+        account_id=payload.get("account_id"),
+        case_id=payload.get("case_id"),
+        subject=payload.get("subject"),
+        description=payload.get("description"),
+        priority=payload.get("priority"),
+        service_type=payload.get("service_type"),
+        product=payload.get("product"),
+        status="PENDING",
+        entitlement_verified=True,
+        entitlement_type=payload.get("service_type"),
+        correlation_id=work_order_request.correlation_id,
+        requested_by_id=work_order_request.requested_by_id,
+        owner_id=work_order_request.requested_by_id,
+        created_at=datetime.now()
+    )
+
+    db.add(work_order)
     db.commit()
     db.refresh(work_order)
 
+    # Send to SAP - Create Maintenance Order or Sales Order based on service type
+    sap_client = get_sap_client()
+    sap_result = None
+
+    if payload.get("service_type") in ["Warranty", "Maintenance", "Repair"]:
+        # Create PM Maintenance Order
+        sap_order_data = {
+            "order_type": "PM01",
+            "description": payload.get("subject"),
+            "priority": "2" if payload.get("priority") == "High" else "3",
+            "notes": f"Work Order from Salesforce. Request ID: {request_id}. ServiceNow: {work_order_request.servicenow_ticket_id}. Service Type: {payload.get('service_type')}"
+        }
+        sap_result = await sap_client.create_maintenance_order(sap_order_data)
+    else:
+        # Create Sales Order for installation/other services
+        sap_order_data = {
+            "customer_id": f"CUST-{payload.get('account_id')}" if payload.get("account_id") else "CUST-DEFAULT",
+            "order_type": "ZOR",
+            "sales_org": "1000",
+            "distribution_channel": "10",
+            "division": "00",
+            "items": [{
+                "material": f"SERVICE-{payload.get('service_type', 'GENERIC').upper()}",
+                "quantity": 1,
+                "unit": "EA",
+                "price": 0.00
+            }],
+            "reference": f"Salesforce Work Order Request {request_id}"
+        }
+        sap_result = await sap_client.create_sales_order(sap_order_data)
+
+    # Update work order request with results
+    work_order_request.status = WorkOrderRequestStatus.COMPLETED.value if sap_result.get("success") else WorkOrderRequestStatus.APPROVED.value
+    work_order_request.approved_by_id = current_user.id
+    work_order_request.created_work_order_id = work_order.id
+    work_order_request.integration_status = "SENT_TO_SAP" if sap_result.get("success") else "SAP_ERROR"
+    work_order_request.sap_entitlement_response = {"entitlement_verified": True, "service_type": payload.get("service_type")}
+    if not sap_result.get("success"):
+        work_order_request.error_message = f"SAP integration failed: {sap_result.get('error')}"
+    work_order_request.updated_at = datetime.now()
+
+    # Update work order based on SAP result
+    if sap_result.get("success"):
+        work_order.status = "APPROVED"
+        work_order.sap_order_id = sap_result.get("order_id")
+        work_order.sap_notification_id = sap_result.get("order_number")
+        work_order.integration_status = "SENT_TO_SAP"
+    else:
+        work_order.status = "SAP_ERROR"
+        work_order.integration_status = "SAP_ERROR"
+        work_order.error_message = f"SAP integration failed: {sap_result.get('error')}"
+
+    work_order.mulesoft_transaction_id = work_order_request.servicenow_ticket_id
+    work_order.updated_at = datetime.now()
+
+    db.commit()
+    db.refresh(work_order_request)
+    db.refresh(work_order)
+
     log_action(
-        action_type="APPROVE_WORK_ORDER" if entitlement_verified else "REJECT_WORK_ORDER",
+        action_type="APPROVE_WORK_ORDER_REQUEST",
         user=current_user.username,
-        details=f"Agent {'approved' if entitlement_verified else 'rejected'} work order {work_order.work_order_number} - {'Sent to SAP' if entitlement_verified else 'Entitlement Failed'}",
-        status="success" if entitlement_verified else "warning"
+        details=f"Work order request #{request_id} approved, work order {work_order_number} created, SAP Order: {sap_result.get('order_number', 'N/A') if sap_result else 'N/A'}",
+        status="success" if sap_result and sap_result.get("success") else "warning"
     )
 
     return {
-        "message": f"Work order {'approved by agent and sent to SAP' if entitlement_verified else 'rejected by agent'} successfully",
-        "work_order": work_order
+        "message": "Work order request approved and sent to SAP successfully" if sap_result and sap_result.get("success") else "Approved but SAP integration failed",
+        "request": work_order_request,
+        "work_order": work_order,
+        "sap_order_number": sap_result.get("order_number") if sap_result else None,
+        "sap_order_id": sap_result.get("order_id") if sap_result else None
     }
 
 
@@ -838,29 +1178,32 @@ async def reject_work_order_request(
 ):
     """Agent rejects work order request"""
 
-    work_order = db.query(WorkOrder).filter(WorkOrder.id == request_id).first()
-    if not work_order:
-        raise HTTPException(status_code=404, detail="Work order not found")
+    work_order_request = db.query(WorkOrderRequest).filter(WorkOrderRequest.id == request_id).first()
+    if not work_order_request:
+        raise HTTPException(status_code=404, detail="Work order request not found")
 
-    work_order.status = "AGENT_REJECTED"
-    work_order.entitlement_verified = False
-    work_order.integration_status = "REJECTED_BY_AGENT"
-    work_order.error_message = f"Agent rejected: {reason}"
-    work_order.updated_at = datetime.now()
+    if work_order_request.status != WorkOrderRequestStatus.PENDING.value:
+        raise HTTPException(status_code=400, detail=f"Request is not pending (current status: {work_order_request.status})")
+
+    work_order_request.status = WorkOrderRequestStatus.REJECTED.value
+    work_order_request.approved_by_id = current_user.id
+    work_order_request.integration_status = "REJECTED_BY_AGENT"
+    work_order_request.error_message = f"Agent rejected: {reason}"
+    work_order_request.updated_at = datetime.now()
 
     db.commit()
-    db.refresh(work_order)
+    db.refresh(work_order_request)
 
     log_action(
-        action_type="REJECT_WORK_ORDER",
+        action_type="REJECT_WORK_ORDER_REQUEST",
         user=current_user.username,
-        details=f"Agent rejected work order {work_order.work_order_number} - Reason: {reason}",
+        details=f"Agent rejected work order request #{request_id} - Reason: {reason}",
         status="warning"
     )
 
     return {
-        "message": "Work order rejected by agent",
-        "work_order": work_order
+        "message": "Work order request rejected by agent",
+        "request": work_order_request
     }
 
 

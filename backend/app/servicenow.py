@@ -1,6 +1,6 @@
 """
-ServiceNow Integration Module
-Updated to use existing ServiceNow backend endpoints
+ServiceNow Integration Module - FIXED VERSION
+Automatically creates ServiceNow tickets when Salesforce appointments are created
 """
 import os
 import httpx
@@ -12,14 +12,44 @@ logger = logging.getLogger(__name__)
 
 
 class ServiceNowClient:
-    """Client for ServiceNow Backend API interactions"""
+    """Client for ServiceNow Backend API interactions - FIXED"""
 
     def __init__(self):
-        # ServiceNow Backend URL (your existing service)
+        # Use servicenow-backend container name for Docker networking
+        # Falls back to external IP for local development
         self.base_url = os.getenv("SERVICENOW_BACKEND_URL", "http://servicenow-backend:4780")
-        # Authentication token for ServiceNow backend
-        self.api_token = os.getenv("SERVICENOW_API_TOKEN", "")
+        self.username = os.getenv("SERVICENOW_USERNAME", "admin@company.com")
+        self.password = os.getenv("SERVICENOW_PASSWORD", "admin123")
         self.timeout = 30
+        self._token = None
+
+    async def _get_token(self) -> Optional[str]:
+        """Get authentication token from ServiceNow"""
+        if self._token:
+            return self._token
+
+        try:
+            async with httpx.AsyncClient() as client:
+                response = await client.post(
+                    f"{self.base_url}/token",
+                    data={
+                        "username": self.username,
+                        "password": self.password
+                    },
+                    timeout=self.timeout
+                )
+
+                if response.status_code == 200:
+                    data = response.json()
+                    self._token = data.get("access_token")
+                    logger.info("✅ ServiceNow authentication successful")
+                    return self._token
+                else:
+                    logger.error(f"❌ ServiceNow authentication failed: {response.status_code}")
+                    return None
+        except Exception as e:
+            logger.error(f"❌ ServiceNow authentication error: {str(e)}")
+            return None
 
     async def create_ticket(
         self,
@@ -32,83 +62,84 @@ class ServiceNowClient:
         custom_fields: Optional[Dict[str, Any]] = None
     ) -> Dict[str, Any]:
         """
-        Create an incident ticket in ServiceNow backend
-
-        Args:
-            short_description: Brief title of the ticket
-            description: Detailed description
-            category: Ticket category
-            priority: Priority level (1-5, where 1 is highest)
-            caller_id: User ID of the caller
-            assignment_group: Group to assign the ticket to
-            custom_fields: Additional fields to include
-
-        Returns:
-            Dict containing ticket details including incident_id and number
+        Create a ticket in ServiceNow backend (TKT* numbers, not INC* incidents)
+        Uses the /tickets/ endpoint to create tickets in the tickets table
         """
         try:
-            # Prepare incident data for ServiceNow backend
-            incident_data = {
-                "short_description": short_description,
+            # Get authentication token
+            token = await self._get_token()
+            if not token:
+                return {
+                    "success": False,
+                    "error": "Failed to authenticate with ServiceNow"
+                }
+
+            # Map priority: 1=high, 2=medium, 3=low
+            priority_map = {"1": "high", "2": "medium", "3": "low", "4": "low"}
+            priority_str = priority_map.get(str(priority), "medium")
+
+            # Prepare request body for tickets endpoint
+            ticket_data = {
+                "title": short_description,
                 "description": description,
+                "ticket_type": "service_request",
+                "priority": priority_str,
                 "category": category,
-                "priority": int(priority),
-                "state": "new",
-                "source": "Salesforce"
+                "subcategory": custom_fields.get("u_request_type") if custom_fields else None,
+                "urgency": "high" if priority_str == "high" else "medium",
+                "preferred_contact": "email",
+                # Salesforce integration fields
+                "correlation_id": custom_fields.get("correlation_id") if custom_fields else None,
+                "source_system": custom_fields.get("source_system") if custom_fields else None,
+                "source_request_id": custom_fields.get("source_request_id") if custom_fields else None,
+                "source_request_type": custom_fields.get("source_request_type") if custom_fields else None
             }
 
-            if caller_id:
-                incident_data["caller_id"] = caller_id
-            if assignment_group:
-                incident_data["assignment_group"] = assignment_group
-            if custom_fields:
-                # Add custom fields to incident data
-                for key, value in custom_fields.items():
-                    incident_data[key] = value
-
-            # Make API call to ServiceNow backend
             headers = {
+                "Authorization": f"Bearer {token}",
                 "Content-Type": "application/json",
                 "Accept": "application/json"
             }
 
-            if self.api_token:
-                headers["Authorization"] = f"Bearer {self.api_token}"
+            logger.info(f"🎫 Creating ServiceNow ticket: {short_description}")
 
             async with httpx.AsyncClient() as client:
                 response = await client.post(
-                    f"{self.base_url}/api/servicenow/incidents",
-                    json=incident_data,
+                    f"{self.base_url}/tickets/",
+                    json=ticket_data,
                     headers=headers,
                     timeout=self.timeout
                 )
 
                 if response.status_code in [200, 201]:
                     result = response.json()
-                    logger.info(f"ServiceNow incident created: {result.get('incident_id')}")
+                    ticket_number = result.get("ticket_number")
+
+                    logger.info(f"✅ ServiceNow ticket created: {ticket_number}")
+
                     return {
                         "success": True,
-                        "ticket_id": result.get("incident_id"),
-                        "ticket_number": result.get("number") or result.get("incident_number"),
-                        "state": result.get("state"),
+                        "ticket_id": result.get("id"),
+                        "ticket_number": ticket_number,
+                        "state": result.get("status"),
                         "response": result
                     }
                 else:
-                    logger.error(f"ServiceNow incident creation failed: {response.status_code} - {response.text}")
+                    logger.error(f"❌ ServiceNow ticket creation failed: {response.status_code}")
                     return {
                         "success": False,
-                        "error": f"Failed to create incident: {response.status_code}",
+                        "error": f"Failed to create ticket: {response.status_code}",
                         "details": response.text
                     }
 
         except httpx.TimeoutException:
-            logger.error("ServiceNow Backend API timeout")
+            logger.error("❌ ServiceNow API timeout")
             return {
                 "success": False,
                 "error": "ServiceNow Backend API timeout"
             }
         except Exception as e:
-            logger.error(f"ServiceNow integration error: {str(e)}")
+            logger.error(f"❌ ServiceNow integration error: {str(e)}")
             return {
                 "success": False,
                 "error": f"ServiceNow integration error: {str(e)}"
@@ -119,24 +150,17 @@ class ServiceNowClient:
         ticket_id: str,
         updates: Dict[str, Any]
     ) -> Dict[str, Any]:
-        """
-        Update an existing ServiceNow incident
-
-        Args:
-            ticket_id: ServiceNow incident ID
-            updates: Dictionary of fields to update
-
-        Returns:
-            Dict containing update status
-        """
+        """Update an existing ServiceNow incident"""
         try:
+            token = await self._get_token()
+            if not token:
+                return {"success": False, "error": "Authentication failed"}
+
             headers = {
                 "Content-Type": "application/json",
-                "Accept": "application/json"
+                "Accept": "application/json",
+                "Authorization": f"Bearer {token}"
             }
-
-            if self.api_token:
-                headers["Authorization"] = f"Bearer {self.api_token}"
 
             async with httpx.AsyncClient() as client:
                 response = await client.put(
@@ -167,20 +191,16 @@ class ServiceNowClient:
             }
 
     async def get_ticket(self, ticket_id: str) -> Dict[str, Any]:
-        """
-        Retrieve an incident from ServiceNow backend
-
-        Args:
-            ticket_id: ServiceNow incident ID
-
-        Returns:
-            Dict containing incident details
-        """
+        """Retrieve an incident from ServiceNow backend"""
         try:
-            headers = {"Accept": "application/json"}
+            token = await self._get_token()
+            if not token:
+                return {"success": False, "error": "Authentication failed"}
 
-            if self.api_token:
-                headers["Authorization"] = f"Bearer {self.api_token}"
+            headers = {
+                "Accept": "application/json",
+                "Authorization": f"Bearer {token}"
+            }
 
             async with httpx.AsyncClient() as client:
                 response = await client.get(
@@ -206,221 +226,21 @@ class ServiceNowClient:
                 "error": f"ServiceNow retrieval error: {str(e)}"
             }
 
-    async def close_ticket(self, ticket_id: str, close_notes: str = "") -> Dict[str, Any]:
-        """
-        Close an incident in ServiceNow backend
-
-        Args:
-            ticket_id: ServiceNow incident ID
-            close_notes: Notes about closing the incident
-
-        Returns:
-            Dict containing close status
-        """
-        try:
-            headers = {
-                "Content-Type": "application/json",
-                "Accept": "application/json"
-            }
-
-            if self.api_token:
-                headers["Authorization"] = f"Bearer {self.api_token}"
-
-            payload = {"close_notes": close_notes} if close_notes else {}
-
-            async with httpx.AsyncClient() as client:
-                response = await client.post(
-                    f"{self.base_url}/api/servicenow/incidents/{ticket_id}/close",
-                    json=payload,
-                    headers=headers,
-                    timeout=self.timeout
-                )
-
-                if response.status_code == 200:
-                    return {
-                        "success": True,
-                        "response": response.json()
-                    }
-                else:
-                    return {
-                        "success": False,
-                        "error": f"Failed to close incident: {response.status_code}"
-                    }
-
-        except Exception as e:
-            return {
-                "success": False,
-                "error": f"ServiceNow close error: {str(e)}"
-            }
-
-    async def create_approval(
-        self,
-        incident_id: str,
-        approver_id: str,
-        approval_type: str = "Service Request"
-    ) -> Dict[str, Any]:
-        """
-        Create an approval request in ServiceNow backend
-
-        Args:
-            incident_id: Related incident ID
-            approver_id: User ID who needs to approve
-            approval_type: Type of approval
-
-        Returns:
-            Dict containing approval details
-        """
-        try:
-            headers = {
-                "Content-Type": "application/json",
-                "Accept": "application/json"
-            }
-
-            if self.api_token:
-                headers["Authorization"] = f"Bearer {self.api_token}"
-
-            approval_data = {
-                "incident_id": incident_id,
-                "approver_id": approver_id,
-                "approval_type": approval_type,
-                "state": "pending"
-            }
-
-            async with httpx.AsyncClient() as client:
-                response = await client.post(
-                    f"{self.base_url}/api/approvals",
-                    json=approval_data,
-                    headers=headers,
-                    timeout=self.timeout
-                )
-
-                if response.status_code in [200, 201]:
-                    return {
-                        "success": True,
-                        "approval": response.json()
-                    }
-                else:
-                    return {
-                        "success": False,
-                        "error": f"Failed to create approval: {response.status_code}"
-                    }
-
-        except Exception as e:
-            return {
-                "success": False,
-                "error": f"Approval creation error: {str(e)}"
-            }
-
-    async def approve_request(self, approval_id: str, comments: str = "") -> Dict[str, Any]:
-        """
-        Approve a ServiceNow approval request
-
-        Args:
-            approval_id: Approval ID to approve
-            comments: Optional approval comments
-
-        Returns:
-            Dict containing approval status
-        """
-        try:
-            headers = {
-                "Content-Type": "application/json",
-                "Accept": "application/json"
-            }
-
-            if self.api_token:
-                headers["Authorization"] = f"Bearer {self.api_token}"
-
-            payload = {"comments": comments} if comments else {}
-
-            async with httpx.AsyncClient() as client:
-                response = await client.post(
-                    f"{self.base_url}/api/servicenow/approvals/{approval_id}/approve",
-                    json=payload,
-                    headers=headers,
-                    timeout=self.timeout
-                )
-
-                if response.status_code == 200:
-                    return {
-                        "success": True,
-                        "response": response.json()
-                    }
-                else:
-                    return {
-                        "success": False,
-                        "error": f"Failed to approve: {response.status_code}"
-                    }
-
-        except Exception as e:
-            return {
-                "success": False,
-                "error": f"Approval error: {str(e)}"
-            }
-
-    async def reject_request(self, approval_id: str, comments: str = "") -> Dict[str, Any]:
-        """
-        Reject a ServiceNow approval request
-
-        Args:
-            approval_id: Approval ID to reject
-            comments: Optional rejection comments
-
-        Returns:
-            Dict containing rejection status
-        """
-        try:
-            headers = {
-                "Content-Type": "application/json",
-                "Accept": "application/json"
-            }
-
-            if self.api_token:
-                headers["Authorization"] = f"Bearer {self.api_token}"
-
-            payload = {"comments": comments} if comments else {}
-
-            async with httpx.AsyncClient() as client:
-                response = await client.post(
-                    f"{self.base_url}/api/servicenow/approvals/{approval_id}/reject",
-                    json=payload,
-                    headers=headers,
-                    timeout=self.timeout
-                )
-
-                if response.status_code == 200:
-                    return {
-                        "success": True,
-                        "response": response.json()
-                    }
-                else:
-                    return {
-                        "success": False,
-                        "error": f"Failed to reject: {response.status_code}"
-                    }
-
-        except Exception as e:
-            return {
-                "success": False,
-                "error": f"Rejection error: {str(e)}"
-            }
-
     async def test_connection(self) -> Dict[str, Any]:
-        """
-        Test connection to ServiceNow backend
-
-        Returns:
-            Dict containing connection status
-        """
+        """Test connection to ServiceNow backend"""
         try:
-            headers = {"Accept": "application/json"}
+            token = await self._get_token()
+            if not token:
+                return {
+                    "success": False,
+                    "error": "Authentication failed"
+                }
 
-            if self.api_token:
-                headers["Authorization"] = f"Bearer {self.api_token}"
+            headers = {"Authorization": f"Bearer {token}"}
 
             async with httpx.AsyncClient() as client:
                 response = await client.get(
-                    f"{self.base_url}/servicenow/test-connection",
+                    f"{self.base_url}/health",
                     headers=headers,
                     timeout=self.timeout
                 )
